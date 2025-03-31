@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.777.0",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
@@ -17,8 +18,10 @@
     "jsonwebtoken": "^9.0.2",
     "msnodesqlv8": "^4.5.0",
     "mssql": "^11.0.1",
+    "multer": "^1.4.5-lts.2",
     "mysql2": "^3.14.0",
     "sequelize": "^6.37.6",
+    "sharp": "^0.33.5",
     "uuid": "^11.1.0"
   },
   "devDependencies": {
@@ -27,6 +30,7 @@
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.9",
     "@types/mssql": "^9.1.7",
+    "@types/multer": "^1.4.12",
     "@types/mysql": "^2.15.26",
     "@types/node": "^22.13.10",
     "@types/sequelize": "^4.28.20",

@@ -5,13 +5,13 @@ import { verifyToken } from './middleware/verifyToken';
 import auth from './routes/authRoute';
 import product from './routes/productRoute';
 import cart from './routes/cartRoute';
-import order from './routes/OrderRoute';
+import order from './routes/orderRoute';
 dotenv.config();
 const app = express();
 const port = process.env.PORT;
 app.use(cors({
-  origin: "*",
-  methods: ["GET", "POST", "PATCH", "DELETE"],
+  origin: "http://localhost:3000",
+  methods: ["GET", "POST", "PATCH", "DELETE", "PUT"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
