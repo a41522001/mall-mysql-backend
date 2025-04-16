@@ -5,15 +5,6 @@ import { Orders } from './orderModel.ts';
 import { UserInfo } from "./authModel.ts";
 import { Carts } from "./cartModel.ts";
 import { OrderItems } from "./OrderItemsModel.ts";
-// 測試連線
-export async function testConnection() {
-  try {
-    await sequelize.authenticate();
-    console.log('成功連線到 MySQL 資料庫');
-  } catch (err) {
-    console.error('連線失敗:', err);
-  }
-}
 
 // 關聯
 UserInfo.hasMany(Orders, {
