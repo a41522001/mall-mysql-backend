@@ -1,29 +1,30 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
-
-export const Products = sequelize.define('Products', {
+export const OrderItems = sequelize.define('OrderItems', {
   id: {
     type: DataTypes.CHAR(36),
     allowNull: false,
-    primaryKey: true
+    primaryKey: true,
+    defaultValue: DataTypes.UUIDV4
   },
-  quantity: {
-    type: DataTypes.INTEGER,
+  orderId: {
+    type: DataTypes.CHAR(36),
+    allowNull: false
+  },
+  productId: {
+    type: DataTypes.CHAR(36),
     allowNull: false
   },
   price: {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  name: {
-    type: DataTypes.STRING(40),
+  quantity: {
+    type: DataTypes.INTEGER,
     allowNull: false
-  },
-  image: {
-    type: DataTypes.STRING(100),
   }
 }, {
-  tableName: 'Products',
+  tableName: 'OrderItems',
   timestamps: false
 }
 )

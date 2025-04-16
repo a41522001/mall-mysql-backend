@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
-import authModel from '../models/authModel';
-import ResponseModel from "../models/responseModel";
-import { getUserInfo } from '../services/getUserInfo';
+import authService from '../services/authService.ts';
+import ResponseModel from "../models/responseModel.ts";
+import { getUserInfo } from '../utils/index.ts';
+
 export const signup = async (req: Request, res: Response) => {
   const { name, email, password } = req.body;
-  const result = await authModel.signup(name, email, password);
+  const result = await authService.signup(name, email, password);
   
   if('message' in result) {
     res.status(200).json(ResponseModel.successResponse(null, result.message));
@@ -15,7 +16,7 @@ export const signup = async (req: Request, res: Response) => {
 
 export const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const token = await authModel.login(email, password);
+  const token = await authService.login(email, password);
   if(typeof token === 'string') {
     res.status(200).json(ResponseModel.loginResponse('登入成功',token, 100));
   }else {

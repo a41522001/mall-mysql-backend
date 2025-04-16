@@ -21,6 +21,7 @@ export const handleUploadFile = async (file: any) => {
       Key: fileName,
       Body: fileBuffer,
       ContentType: 'image/jpeg',
+      CacheControl: 'public, max-age=31536000'
     };
     await s3.send(new PutObjectCommand(uploadParams));
     const url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;

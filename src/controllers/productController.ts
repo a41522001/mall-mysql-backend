@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import ResponseModel from '../models/responseModel';
-import ProductModel from '../models/productModel'
+import ResponseModel from '../models/responseModel.ts';
+// import ProductModel from '../models/productModel.ts'
+import ProductService from '../services/productService.ts';
 // 取得商品資訊
 export const getProduct = async (req: Request, res: Response) => {
-  const result = await ProductModel.getProductList();
+  const result = await ProductService.getProductList();
   if(result) {
     res.status(200).json(ResponseModel.successResponse(result));
   }else {
@@ -28,7 +29,7 @@ export const addProduct = async (req: Request, res: Response) => {
 // 新增商品圖片
 export const addProductImage = async (req: Request, res: Response) => {
   try {
-    const url = await ProductModel.addProductImage(req.file);
+    const url = await ProductService.addProductImage(req.file);
     res.status(200).json(ResponseModel.successResponse(url));
   } catch (error) {
     res.status(500).json(ResponseModel.errorResponse(`${error}`, 500));

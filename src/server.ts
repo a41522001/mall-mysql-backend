@@ -1,11 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { verifyToken } from './middleware/verifyToken';
-import auth from './routes/authRoute';
-import product from './routes/productRoute';
-import cart from './routes/cartRoute';
-import order from './routes/orderRoute';
+import { verifyToken } from './middleware/verifyToken.ts';
+import auth from './routes/authRoute.ts';
+import product from './routes/productRoute.ts';
+import cart from './routes/cartRoute.ts';
+import order from './routes/orderRoute.ts';
 dotenv.config();
 const app = express();
 const port = process.env.PORT;

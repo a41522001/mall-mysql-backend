@@ -1,13 +1,11 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from "express"
-import ResponseModel from "../models/responseModel";
-import authModel from '../models/authModel';
+import ResponseModel from "../models/responseModel.ts";
+import authService from '../services/authService.ts';
 import dotenv from "dotenv";
-import { decodedToken } from "../types/auth";
+import { decodedToken } from "../types/auth.ts";
 dotenv.config();
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
-
-  
   const auth = req.headers.authorization;
   if(!auth || !auth.startsWith('Bearer ')) {
     res.status(400).json(ResponseModel.errorResponse('未授權', 400));
@@ -27,7 +25,7 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
       res.status(500).json(ResponseModel.errorResponse('伺服器錯誤', 500));
     }else {
       const { _id, email } = decoded as decodedToken;
-      const isExist = await authModel.checkToken(_id, email);
+      const isExist = await authService.checkToken(_id, email);
       if(isExist) {
         next();
       }else {
