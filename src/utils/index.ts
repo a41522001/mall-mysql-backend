@@ -18,8 +18,12 @@ export const getUserInfo = async (req: Request) => {
   const queryString = 'SELECT id, name, email FROM UserInfo WHERE id = ?'
   let id = '';
   jwt.verify(token, process.env.SECRET_KEY!, async (err, decoded) => {
-    const { _id, email } = decoded as decodedToken;
-    id = _id;
+    const data = decoded as decodedToken;
+    if(data) {
+      id = data._id;
+    }else {
+      return;
+    }
   })
   const result = await query(queryString, [id]);
   return result[0];

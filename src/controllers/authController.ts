@@ -26,9 +26,9 @@ export const login = async (req: Request, res: Response) => {
 
 export const userInfo = async (req: Request, res: Response) => {
   const result = await getUserInfo(req);
-  if('id' in result) {
+  if(result && 'id' in result) {
     res.status(200).json(ResponseModel.successResponse(result));
   }else {
-    res.status(500).json(ResponseModel.errorResponse('伺服器錯誤', 500));
+    res.status(400).json(ResponseModel.errorResponse('token錯誤', 400));
   }
 }
