@@ -1,6 +1,18 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
-export const Carts = sequelize.define('Carts', {
+interface CartType {
+  userId: string;
+  productId: string;
+  quantity: number;
+}
+export class Carts
+extends Model<CartType>
+implements CartType {
+  public userId!: string;
+  public productId!: string;
+  public quantity!: number;
+}
+Carts.init({
   userId: {
     type: DataTypes.CHAR(36),
     allowNull: false,
@@ -15,6 +27,6 @@ export const Carts = sequelize.define('Carts', {
   }
 }, {
   tableName: 'Carts',
-  timestamps: false
-}
-)
+  timestamps: false,
+  sequelize
+})
