@@ -3,8 +3,9 @@ import dotenv from 'dotenv';
 import { Request } from "express"
 import { decodedToken } from "../types/auth.ts";
 import { query } from '../db.ts';
+import type { NewebPayTradeInfo } from '../types/payment.ts';
 dotenv.config();
-
+import crypto from 'crypto';
 // 創建TOKEN
 export const createToken = (userID: string, email: string) => {
   const tokenObject = { _id: userID, email: email };
@@ -43,4 +44,42 @@ export const getCurrentTime = (): string => {
   const hour = String(now.getHours()).padStart(2, '0');
   const minute = String(now.getMinutes()).padStart(2, '0');
   return `${hour}${minute}`;
+}
+
+/**
+ * 解密藍新 TradeInfo
+ * @param encryptedHex - 藍新回傳的 TradeInfo（大寫 HEX 字串）
+ * @returns {NewebPayTradeInfo} 明文參數的物件
+ */
+export const decryptTradeInfo = (encryptedHex: string): NewebPayTradeInfo => {
+  const key = Buffer.from(process.env.NEW_WEB_PAY_HASH_KEY!, 'utf8');
+  const iv  = Buffer.from(process.env.NEW_WEB_PAY_HASH_IV!,  'utf8');
+  const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
+  decipher.setAutoPadding(true);
+
+  const encrypted = Buffer.from(encryptedHex, 'hex');
+  let decrypted = decipher.update(encrypted);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+
+  const plainText = decrypted.toString('utf8').trim();
+  
+  return JSON.parse(plainText) as NewebPayTradeInfo;
+};
+// 藍新金流渲染 HTML FORM
+export const renderHTMLForm = (gateway: string, merchantID: string, encryptedTradeInfo: string, tradeSha: string, version: string | number): string => {
+  return `
+    <!DOCTYPE html>
+    <html>
+      <body onload="document.forms[0].submit()">
+        <form method="post" action="${gateway}">
+          <input type="hidden" name="MerchantID"  value="${merchantID}" />
+          <input type="hidden" name="TradeInfo"   value="${encryptedTradeInfo}" />
+          <input type="hidden" name="TradeSha"    value="${tradeSha}" />
+          <input type="hidden" name="Version"     value="${version}" />
+          <input type="hidden" name="EncryptType" value="0" />
+        </form>
+        <p>Redirecting to NewebPay...</p>
+      </body>
+    </html>
+  `
 }

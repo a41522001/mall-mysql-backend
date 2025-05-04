@@ -6,6 +6,11 @@ import dotenv from "dotenv";
 import { decodedToken } from "../types/auth.ts";
 dotenv.config();
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
+  const reqPath = req.path;
+  // 跳過藍新金流的notify URL
+  if(reqPath === '/checkoutNotify') {
+    next();
+  }
   const auth = req.headers.authorization;
   if(!auth || !auth.startsWith('Bearer ')) {
     res.status(400).json(ResponseModel.errorResponse('未授權', 400));

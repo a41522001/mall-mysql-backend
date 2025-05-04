@@ -1,4 +1,3 @@
-import { log } from 'console';
 import { query } from '../db.ts';
 import { Products } from '../models/productModel.ts';
 import { Carts } from '../models/cartModel.ts';

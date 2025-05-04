@@ -1,7 +1,24 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
-
-export const Orders = sequelize.define('Orders', {
+interface OrderType {
+  id: string;
+  userId: string;
+  totalPrice: number;
+  status: string;
+  createdDate: string;
+  createdTime: string;
+}
+export class Orders
+extends Model<OrderType>
+implements OrderType {
+  public id!: string;
+  public userId!: string;
+  public totalPrice!: number;
+  public status!: string;
+  public createdDate!: string;
+  public createdTime!: string;
+}
+Orders.init({
   id: {
     type: DataTypes.CHAR(36),
     allowNull: false,
@@ -29,6 +46,6 @@ export const Orders = sequelize.define('Orders', {
   }
 }, {
   tableName: 'Orders',
-  timestamps: false
-}
-)
+  timestamps: false,
+  sequelize
+})

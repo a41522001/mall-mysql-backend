@@ -1,13 +1,24 @@
 import { Request, Response } from 'express';
 import ResponseModel from '../models/responseModel.ts';
 import OrderService from '../services/orderService.ts';
-import { log } from 'console';
-// 取得訂單資訊
+// 取得所有訂單資訊
 export const getOrder = async (req: Request, res: Response) => {
-  const userID = req.query?.userID;
-  if(userID && typeof userID === 'string') {
+  const userId = req.params?.userId;
+  if(userId && typeof userId === 'string') {
     try {
-      const result = await OrderService.getOrder(userID);
+      const result = await OrderService.getOrder(userId);
+      res.status(200).json(ResponseModel.successResponse(result));
+    } catch (error: any) {
+      res.status(500).json(ResponseModel.errorResponse(error.message, 400));
+    }
+  }
+}
+// 取得單筆訂單詳細資訊
+export const getSingleOrderDetail = async (req: Request, res: Response) => {
+  const { userId, orderId } = req.body;
+  if(userId && orderId) {
+    try {
+      const result = await OrderService.getOrderSingleDetail(userId, orderId);
       res.status(200).json(ResponseModel.successResponse(result));
     } catch (error: any) {
       res.status(500).json(ResponseModel.errorResponse(error.message, 400));

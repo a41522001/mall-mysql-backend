@@ -6,7 +6,8 @@ import { sequelize } from '../config/sequelize.ts';
 import { getToday, getCurrentTime } from '../utils/index.ts';
 import { v4 as uuidv4 } from 'uuid';
 import type { ProductDetail } from '../types/product.ts';
-import { Transaction, Op } from 'sequelize';
+import type { OrderDetail } from '../types/order.ts';
+import { Transaction, Op, QueryTypes } from 'sequelize';
 class OrderModel {
   // 取得訂單列表
   async getOrder(userID: string) {
@@ -14,9 +15,26 @@ class OrderModel {
       return await sequelize.query(
         'CALL SP_GetOrder(:userID)',
         {
-          replacements: { userID: userID },
-        }
+          replacements: { userID: userID }
+        },
       );
+    } catch (error) {
+      throw new Error('發生未知錯誤');
+    }
+  }
+  async getOrderSingleDetail(userId: string, orderId: string): Promise<OrderDetail> {
+    try {
+      const result = await sequelize.query(
+        'CALL SP_GetOrder(:runType, :userID, :orderID)',
+        {
+          replacements: { 
+            runType: 'S',
+            userID: userId,
+            orderID: orderId
+          }
+        }
+      );   
+      return result[0] as unknown as OrderDetail;
     } catch (error) {
       throw new Error('發生未知錯誤');
     }
@@ -27,8 +45,12 @@ class OrderModel {
     const todayDate = getToday();
     const currentTime = getCurrentTime();
     const orderID = uuidv4();
-
     try {
+      const isOrderPendingExist = await this.checkOrderIsPending(userId, t);
+      if(isOrderPendingExist) {
+        const { id } = isOrderPendingExist;
+        this.changeOrderStatus(id, t);
+      }
       await Orders.create({
         id: orderID,
         userId: userId,
@@ -50,9 +72,9 @@ class OrderModel {
           // 創建子訂單
           await this.createOrderItem(orderID, currentProductId, cart.quantity, currentProductPrice, t);
           // 扣除購物車數量
-          await this.decreaseCartQuantity(currentProductId, userId, cart.quantity, t);
+          // await this.decreaseCartQuantity(currentProductId, userId, cart.quantity, t);
           // 扣除商品數量
-          await this.decreaseProductQuantity(currentProductId, cart.quantity, t);
+          // await this.decreaseProductQuantity(currentProductId, cart.quantity, t);
         }else {
           throw new Error(`${currentProductName}目前庫存不足, 最多可購入${currentProductStock}件`);
         }
@@ -63,6 +85,39 @@ class OrderModel {
       await t.rollback();
       // console.error(error);
       throw new Error(error);
+    }
+  }
+  // 改變訂單狀態 (Pending改成Cancel)
+  private async changeOrderStatus(orderId: string, t: Transaction): Promise<void> {
+    try {
+      await Orders.update(
+        { status: 'cancel' },
+        {
+          where: {
+            id: orderId
+          }
+        }
+      );
+    } catch (error) {
+      throw Error('發生未知錯誤');
+    }
+  }
+
+  // 確認是否有已存在的pending訂單
+  private async checkOrderIsPending(userID: string, t: Transaction): Promise<{ id: string } | null> {
+    try {
+      const res = await Orders.findOne({
+        attributes: ['id'],
+        where: {
+          userId: userID,
+          status: 'pending'
+        },
+        raw: true,
+        transaction: t
+      });
+      return res as { id: string } | null;
+    } catch (error) {
+      throw new Error('查詢待處理訂單時發生錯誤');
     }
   }
   // 得到商品名稱 庫存 價格 ID
@@ -89,7 +144,7 @@ class OrderModel {
     }
   }
   // 創建子訂單
-  private async createOrderItem(orderID: string, productID: string, quantity: number, price: number, t: Transaction) {
+  private async createOrderItem(orderID: string, productID: string, quantity: number, price: number, t: Transaction): Promise<void> {
     try {
       await OrderItems.create({
         id: uuidv4(),
@@ -98,47 +153,6 @@ class OrderModel {
         price: price,
         quantity: quantity
       }, { transaction: t })
-    } catch (error) {
-      throw new Error('發生未知錯誤');
-    }
-  }
-  // 扣除商品庫存數量
-  private async decreaseProductQuantity(productId: string, decrementQuantity: number, t: Transaction) {
-    try {
-      await Products.decrement('quantity', {
-        where: {
-          id: productId
-        },
-        by: decrementQuantity,
-        transaction: t
-      });
-    } catch (error) {
-      throw new Error('發生未知錯誤');
-    }
-  }
-  // 扣除購物車庫存數量
-  private async decreaseCartQuantity(productId: string, userId: string, decrementQuantity: number, t: Transaction) {
-    try {
-      // 先扣除數量
-      await Carts.decrement('quantity', {
-        by: decrementQuantity,
-        where: {
-          productId: productId,
-          userId: userId
-        },
-        transaction: t
-      });
-      // 再判斷數量是否為零或以下 可否清除
-      await Carts.destroy({
-        where: {
-          productId: productId,
-          userId: userId,
-          quantity: {
-            [Op.lte]: 0
-          }
-        },
-        transaction: t
-      });
     } catch (error) {
       throw new Error('發生未知錯誤');
     }
