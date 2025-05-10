@@ -3,29 +3,54 @@ import { query } from '../db.ts';
 import { createToken } from '../utils/index.ts';
 import { sequelize } from '../config/sequelize.ts';
 import type { ComparePad } from '../types/auth.ts';
+import { UserInfo } from '../models/authModel.ts';
+import ApiError from '../models/errorModel.ts';
+import { v4 as uuidv4 } from 'uuid';
 class AuthModel {
   // 註冊
   async signup(name: string, email: string, pwd: string) {
+    const result = await UserInfo.findOne({
+      where: {
+        email: email
+      },
+      raw: true
+    })
+    console.log(result);
+    if(result) {
+      throw new ApiError('帳號已存在', 400);
+    }
     // 密碼加鹽
     const saltRounds = 10;
     const bcryptPwd = await bcrypt.hash(pwd, saltRounds);
-    const result =  await query('CALL SP_Signup(?, ?, ?)', [name, email, bcryptPwd]);
-    return result[0][0];
+    await UserInfo.create({
+      id: uuidv4(),
+      email: email,
+      password: bcryptPwd,
+      name: name
+    })
   }
-  private async getPad(email: string) {
-    return await sequelize.query('CALL SP_GetPassword(:email)', {
-      replacements: { email }
+  private async getPad(email: string): Promise<{password: string, id: string} | null> {
+    return await UserInfo.findOne({
+      where: {
+        email: email
+      },
+      attributes: ['id', 'password'],
+      raw: true
     })
   }
   // 登入
-  async login(email: string, pwd: string): Promise<string | boolean> {
+  async login(email: string, pwd: string): Promise<string> {
     const result = await this.getPad(email);
-    if(!('id' in result[0]) || !('password' in result[0])) {
-      return false;
+    if(!result) {
+      throw new ApiError('帳號密碼錯誤', 400);
     }
-    const { id, password } = result[0] as ComparePad;
+    const { id, password } = result;
     const isPasswordExist = await bcrypt.compare(pwd, password);
-    return isPasswordExist ? createToken(id, email) : false;
+    if(isPasswordExist) {
+      return createToken(id, email);
+    }else {
+      throw new ApiError('帳號密碼錯誤', 400);
+    }
   }
   // 確認Token資料
   async checkToken(id: string, email: string): Promise<number> {

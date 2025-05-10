@@ -1,7 +1,21 @@
-import { DataTypes } from "sequelize";
+import { DataTypes, Model } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
-export const UserInfo = sequelize.define('UserInfo', {
-  id: {
+interface UserInfoType {
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+}
+export class UserInfo 
+extends Model<UserInfoType>
+implements UserInfoType {
+  public id!: string;
+  public email!: string;
+  public password!: string;
+  public name!: string;
+}
+UserInfo.init({
+id: {
     type: DataTypes.CHAR(36),
     allowNull: false,
     primaryKey: true
@@ -20,6 +34,6 @@ export const UserInfo = sequelize.define('UserInfo', {
   }
 }, {
   tableName: 'UserInfo',
-  timestamps: false
-}
-)
+  timestamps: false,
+  sequelize
+})

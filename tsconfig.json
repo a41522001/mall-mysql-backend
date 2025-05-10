@@ -6,6 +6,7 @@
     "moduleResolution": "bundler",         // ← 建議改成 bundler
     "allowImportingTsExtensions": true,    // ← 加這個
     "outDir": "./dist",
+    "rootDir": "./src",
     "noEmit": true,    
     "strict": true,
     "esModuleInterop": true

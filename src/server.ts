@@ -8,8 +8,9 @@ import product from './routes/productRoute.ts';
 import cart from './routes/cartRoute.ts';
 import order from './routes/orderRoute.ts';
 import checkout from './routes/checkoutRoute.ts';
-import test from './routes/TestRoute.ts';
+import { handleError } from './middleware/handleError.ts';
 dotenv.config();
+
 const app = express();
 const port = process.env.PORT;
 app.use(cors({
@@ -18,8 +19,6 @@ app.use(cors({
   methods: ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
-console.log(process.env.FRONT_END_URL!);
-
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/ping", ping);
@@ -28,8 +27,7 @@ app.use("/product", verifyToken, product);
 app.use("/cart", verifyToken, cart);
 app.use("/order", verifyToken, order);
 app.use("/checkout", verifyToken, checkout);
-app.use("/test", verifyToken, test);
-
+app.use(handleError);
 
 app.listen(port, () => {
   console.log('on server');

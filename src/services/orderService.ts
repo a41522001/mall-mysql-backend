@@ -1,7 +1,7 @@
 import { Products } from '../models/productModel.ts';
 import { Orders } from '../models/orderModel.ts';
 import { Carts } from '../models/cartModel.ts';
-import { OrderItems } from '../models/OrderItemsModel.ts';
+import { OrderItems } from '../models/orderItemsModel.ts';
 import { sequelize } from '../config/sequelize.ts';
 import { getToday, getCurrentTime } from '../utils/index.ts';
 import { v4 as uuidv4 } from 'uuid';
@@ -71,10 +71,6 @@ class OrderModel {
         if(currentProductStock >= cart.quantity) {
           // 創建子訂單
           await this.createOrderItem(orderID, currentProductId, cart.quantity, currentProductPrice, t);
-          // 扣除購物車數量
-          // await this.decreaseCartQuantity(currentProductId, userId, cart.quantity, t);
-          // 扣除商品數量
-          // await this.decreaseProductQuantity(currentProductId, cart.quantity, t);
         }else {
           throw new Error(`${currentProductName}目前庫存不足, 最多可購入${currentProductStock}件`);
         }

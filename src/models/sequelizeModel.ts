@@ -4,7 +4,7 @@ import { Products } from './productModel.ts';
 import { Orders } from './orderModel.ts';
 import { UserInfo } from "./authModel.ts";
 import { Carts } from "./cartModel.ts";
-import { OrderItems } from "./OrderItemsModel.ts";
+import { OrderItems } from "./orderItemsModel.ts";
 
 // 關聯
 UserInfo.hasMany(Orders, {

@@ -1,7 +1,7 @@
 import { Products } from '../models/productModel.ts';
 import { Orders } from '../models/orderModel.ts';
 import { Carts } from '../models/cartModel.ts';
-import { OrderItems } from '../models/OrderItemsModel.ts';
+import { OrderItems } from '../models/orderItemsModel.ts';
 import { sequelize } from '../config/sequelize.ts';
 import { getToday, getCurrentTime, renderHTMLForm, decryptTradeInfo } from '../utils/index.ts';
 import { v4 as uuidv4 } from 'uuid';
