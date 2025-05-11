@@ -16,10 +16,12 @@ Carts.init({
   userId: {
     type: DataTypes.CHAR(36),
     allowNull: false,
+    primaryKey: true,
   },
   productId: {
     type: DataTypes.CHAR(36),
     allowNull: false,
+    primaryKey: true,
   },
   quantity: {
     type: DataTypes.INTEGER,

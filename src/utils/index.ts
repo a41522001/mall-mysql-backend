@@ -2,32 +2,52 @@ import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { Request } from "express"
 import { decodedToken } from "../types/auth.ts";
-import { query } from '../db.ts';
 import type { NewebPayTradeInfo } from '../types/payment.ts';
+import ApiError from '../models/errorModel.ts';
+import { UserInfo } from '../models/authModel.ts';
 dotenv.config();
 import crypto from 'crypto';
 // 創建TOKEN
 export const createToken = (userID: string, email: string) => {
   const tokenObject = { _id: userID, email: email };
   const token = jwt.sign(tokenObject, process.env.SECRET_KEY as string, { expiresIn: '4h' });
+  // 測試Token過期時間 設定為2000毫秒
+  // const token = jwt.sign(tokenObject, process.env.SECRET_KEY as string, { expiresIn: '2000' });
   return token;
 }
 // 取得user資料
 export const getUserInfo = async (req: Request) => {
   const auth = req.headers.authorization;
-  const token = auth!.split(' ')[1];
-  const queryString = 'SELECT id, name, email FROM UserInfo WHERE id = ?'
+  if(!auth) {
+    throw new ApiError('未提供Token', 401);
+  }
+  const [ header, token ] = auth.split(' ');
+  if(header !== 'Bearer') {
+    throw new ApiError('錯誤Token', 400);
+  }
   let id = '';
-  jwt.verify(token, process.env.SECRET_KEY!, async (err, decoded) => {
-    const data = decoded as decodedToken;
+  try {
+    const data = jwt.verify(token, process.env.SECRET_KEY!) as decodedToken;
     if(data) {
       id = data._id;
     }else {
-      return;
+      throw new ApiError('錯誤Token', 400);
     }
+  } catch (error) {
+    throw new ApiError('Token驗證失效或過期', 401);
+  }
+  const result = await UserInfo.findOne({
+    where: {
+      id: id
+    },
+    attributes: ['id', 'email', 'name'],
+    raw: true
   })
-  const result = await query(queryString, [id]);
-  return result[0];
+  if(result) {
+    return result;
+  }else {
+    throw new ApiError('使用者ID不存在', 404);
+  }
 }
 // 取得今日日期
 export const getToday = (): string => {

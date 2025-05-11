@@ -12,7 +12,6 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
     next(error);
   }
 }
-
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   try {
@@ -22,12 +21,11 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     next(error);
   }
 }
-
-export const userInfo = async (req: Request, res: Response) => {
-  const result = await getUserInfo(req);
-  if(result && 'id' in result) {
+export const userInfo = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const result = await getUserInfo(req);
     res.status(200).json(ResponseModel.successResponse(result));
-  }else {
-    res.status(400).json(ResponseModel.errorResponse('token錯誤', 400));
+  } catch (error) {
+    next(error);
   }
 }
