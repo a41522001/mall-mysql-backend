@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
+import type { Status } from '../types/order.ts';
 interface OrderType {
   id: string;
   userId: string;
@@ -7,6 +8,7 @@ interface OrderType {
   status: string;
   createdDate: string;
   createdTime: string;
+  address: string;
 }
 export class Orders
 extends Model<OrderType>
@@ -14,9 +16,10 @@ implements OrderType {
   public id!: string;
   public userId!: string;
   public totalPrice!: number;
-  public status!: string;
+  public status!: Status;
   public createdDate!: string;
   public createdTime!: string;
+  public address!: string;
 }
 Orders.init({
   id: {
@@ -43,6 +46,9 @@ Orders.init({
   createdTime: {
     type: DataTypes.STRING(8),
     allowNull: false
+  },
+  address: {
+    type: DataTypes.STRING(45),
   }
 }, {
   tableName: 'Orders',

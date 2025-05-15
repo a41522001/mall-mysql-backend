@@ -1,6 +1,5 @@
 import { Products } from '../models/productModel.ts';
 import { Orders } from '../models/orderModel.ts';
-import { Carts } from '../models/cartModel.ts';
 import { OrderItems } from '../models/orderItemsModel.ts';
 import { sequelize } from '../config/sequelize.ts';
 import { getToday, getCurrentTime } from '../utils/index.ts';
@@ -8,26 +7,37 @@ import { v4 as uuidv4 } from 'uuid';
 import type { ProductDetail } from '../types/product.ts';
 import type { OrderDetail } from '../types/order.ts';
 import { Transaction, Op, QueryTypes } from 'sequelize';
+import ApiError from '../models/errorModel.ts';
 class OrderModel {
   // 取得訂單列表
   async getOrder(userID: string) {
-    try {
-      return await sequelize.query(
-        'CALL SP_GetOrder(:userID)',
-        {
-          replacements: { userID: userID }
-        },
-      );
-    } catch (error) {
-      throw new Error('發生未知錯誤');
-    }
+    
+
+
+
+
+
+
+
+
+    // try {
+    //   return await sequelize.query(
+    //     'CALL SP_GetOrder(:userID)',
+    //     {
+    //       replacements: { userID: userID }
+    //     },
+    //   );
+    // } catch (error) {
+    //   throw new Error('發生未知錯誤');
+    // }
   }
+  // 取得單筆訂單資訊
   async getOrderSingleDetail(userId: string, orderId: string): Promise<OrderDetail> {
     try {
       const result = await sequelize.query(
         'CALL SP_GetOrder(:runType, :userID, :orderID)',
         {
-          replacements: { 
+          replacements: {
             runType: 'S',
             userID: userId,
             orderID: orderId
@@ -36,7 +46,7 @@ class OrderModel {
       );   
       return result[0] as unknown as OrderDetail;
     } catch (error) {
-      throw new Error('發生未知錯誤');
+      throw new ApiError('伺服器發生未知錯誤', 500);                                                                                                                                                                                                                                                                                                                                                                                                         
     }
   }
   // 新增訂單
@@ -57,7 +67,8 @@ class OrderModel {
         totalPrice: total,
         status: 'pending',
         createdDate: todayDate,
-        createdTime: currentTime
+        createdTime: currentTime,
+        address: ''
       }, { transaction: t })
       for(const cart of cartList) {
         const currentProduct = await this.getProductDetail(cart.productID, t);
@@ -72,22 +83,25 @@ class OrderModel {
           // 創建子訂單
           await this.createOrderItem(orderID, currentProductId, cart.quantity, currentProductPrice, t);
         }else {
-          throw new Error(`${currentProductName}目前庫存不足, 最多可購入${currentProductStock}件`);
+          throw new ApiError(`${currentProductName}目前庫存不足, 最多可購入${currentProductStock}件`, 404);
         }
       }
       await t.commit();
       return orderID;
     } catch (error: any) {
       await t.rollback();
-      // console.error(error);
-      throw new Error(error);
+      if(error instanceof ApiError) {
+        throw error
+      }else {
+        throw new ApiError('伺服器發生未知錯誤', 500);
+      }
     }
   }
   // 改變訂單狀態 (Pending改成Cancel)
   private async changeOrderStatus(orderId: string, t: Transaction): Promise<void> {
     try {
       await Orders.update(
-        { status: 'cancel' },
+        { status: 'delete' },
         {
           where: {
             id: orderId
@@ -113,7 +127,7 @@ class OrderModel {
       });
       return res as { id: string } | null;
     } catch (error) {
-      throw new Error('查詢待處理訂單時發生錯誤');
+      throw new ApiError('查詢待處理訂單時發生錯誤', 400);
     }
   }
   // 得到商品名稱 庫存 價格 ID
@@ -136,7 +150,7 @@ class OrderModel {
         currentProductId: id
       }
     }else {
-      throw new Error('發生未知錯誤');
+      throw new ApiError('發生未知錯誤', 500);
     }
   }
   // 創建子訂單
@@ -150,7 +164,7 @@ class OrderModel {
         quantity: quantity
       }, { transaction: t })
     } catch (error) {
-      throw new Error('發生未知錯誤');
+      throw new ApiError('發生未知錯誤', 500);
     }
   }
 }

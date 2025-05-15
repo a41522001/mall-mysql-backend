@@ -3,7 +3,7 @@ import { Orders } from '../models/orderModel.ts';
 import { Carts } from '../models/cartModel.ts';
 import { OrderItems } from '../models/orderItemsModel.ts';
 import { sequelize } from '../config/sequelize.ts';
-import { getToday, getCurrentTime, renderHTMLForm, decryptTradeInfo } from '../utils/index.ts';
+import { renderHTMLForm, decryptTradeInfo } from '../utils/index.ts';
 import { v4 as uuidv4 } from 'uuid';
 import type { ProductDetail } from '../types/product.ts';
 import { Transaction, Op, where } from 'sequelize';
@@ -12,12 +12,16 @@ import type { CheckoutProduct } from '../types/product.ts';
 import type { OrderDetail } from '../types/order.ts';
 import type { NewebPayTradeInfo } from '../types/payment.ts';
 import { Payments } from '../models/paymentModel.ts';
+import ApiError from '../models/errorModel.ts';
 class CheckoutModel {
   // 結帳
-  async checkout (email: string, name: string, orderID: string, products: CheckoutProduct[], total: number, userID: string): Promise<string> {
+  async checkout (email: string, name: string, orderID: string, products: CheckoutProduct[], total: number, userID: string, address: string): Promise<string> {
     const t = await sequelize.transaction();
     try {
-      await this.changeOrderStatus(orderID, t, 'paying');
+      await Promise.all([
+        this.addOrderAddress(orderID, address, t),
+        this.changeOrderStatus(orderID, t, 'paying')
+      ]);
       t.commit();
     } catch (error: any) {
       t.rollback();
@@ -85,19 +89,41 @@ class CheckoutModel {
         await this.decreaseCartQuantity(product.productID, userID, product.quantity, t);
         await this.decreaseProductQuantity(product.productID, product.quantity, t);
       }
+      console.log(paymentDetail.TradeInfo);
       // 建立結帳資訊
       const data = decryptTradeInfo(paymentDetail.TradeInfo);
+      
+      
       this.createPayment(data, userID, orderID, t);
 
       t.commit();
     } catch (error: any) {
+      console.log(error);
+      
       t.rollback();
       return error.message;
+    }
+  }
+  // 新增訂單地址
+  private async addOrderAddress(orderID:string, address: string, t: Transaction) {
+    try {
+      await Orders.update({ address: address }, {
+          where: {
+            id: orderID,
+          },
+          transaction: t
+        }
+      );
+    } catch (error) {
+      throw new ApiError('發生未知錯誤', 500);
     }
   }
   // 建立付款資訊
   private async createPayment(paymentDetail: NewebPayTradeInfo, userID: string, orderID: string, t: Transaction) {
     const { Status, Message, Result } = paymentDetail;
+
+    console.log(123123213,  ":", paymentDetail);
+    
     const { MerchantID, Amt, TradeNo, MerchantOrderNo, PaymentType, PayTime, EscrowBank } = Result;
     try {
       Payments.create({
@@ -182,8 +208,6 @@ class CheckoutModel {
   }
   // 扣除購物車庫存數量
   private async decreaseCartQuantity(productId: string, userId: string, decrementQuantity: number, t: Transaction): Promise<void> {
-    console.log(decrementQuantity);
-    
     try {
       // 先扣除數量
       await Carts.decrement('quantity', {

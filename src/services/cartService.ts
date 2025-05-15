@@ -1,4 +1,3 @@
-import { query } from '../db.ts';
 import { Products } from '../models/productModel.ts';
 import { sequelize } from '../config/sequelize.ts';
 import { Carts } from '../models/cartModel.ts';
@@ -65,9 +64,6 @@ class CartModel {
         throw new ApiError('找不到此商品', 404);
       }
       if(quantity >= stock) {
-        console.log(123);
-        console.log(productId, stock, userID);
-        
         this.changeCartQuantity(productId, stock, userID);
       }else {
         throw new ApiError(`庫存不足，最多可加入 ${quantity} 件商品`, 400);

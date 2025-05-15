@@ -14,3 +14,4 @@ export interface OrderDetail {
   total: number;
   products: Product[];
 }
+export type Status = 'pending' | 'delete' | 'cancel' | 'paying' | 'paid';

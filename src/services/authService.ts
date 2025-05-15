@@ -15,7 +15,6 @@ class AuthModel {
       },
       raw: true
     })
-    console.log(result);
     if(result) {
       throw new ApiError('帳號已存在', 400);
     }

@@ -82,7 +82,6 @@ export const decryptTradeInfo = (encryptedHex: string): NewebPayTradeInfo => {
   decrypted = Buffer.concat([decrypted, decipher.final()]);
 
   const plainText = decrypted.toString('utf8').trim();
-  
   return JSON.parse(plainText) as NewebPayTradeInfo;
 };
 // 藍新金流渲染 HTML FORM
