@@ -78,30 +78,21 @@ class CheckoutModel {
       // 如果是paid(代表已經改變訂單付款狀態)的話就return不要再多做操作
       const status = await this.queryOrderStatus(orderId, t);
       if(status === 'paid') return;
-      // console.log('orderID: ', orderID);
-      // console.log('paymentDetail: ', paymentDetail);
-
       // 更改訂單狀態
       await this.changeOrderStatus(orderId, t, 'paid');
       const orderDetail = await this.queryOrderDetail(orderId, t);
-      const { userID, email, name, orderID, total, products } = orderDetail;
+      const { userID, products } = orderDetail;
       for(const product of products) {
         await this.decreaseCartQuantity(product.productID, userID, product.quantity, t);
         await this.decreaseProductQuantity(product.productID, product.quantity, t);
       }
-      console.log(paymentDetail.TradeInfo);
       // 建立結帳資訊
       const data = decryptTradeInfo(paymentDetail.TradeInfo);
-      
-      
-      this.createPayment(data, userID, orderID, t);
-
+      this.createPayment(data, userID, orderId, t);
       t.commit();
     } catch (error: any) {
-      console.log(error);
-      
       t.rollback();
-      return error.message;
+      throw error;
     }
   }
   // 新增訂單地址
@@ -121,9 +112,6 @@ class CheckoutModel {
   // 建立付款資訊
   private async createPayment(paymentDetail: NewebPayTradeInfo, userID: string, orderID: string, t: Transaction) {
     const { Status, Message, Result } = paymentDetail;
-
-    console.log(123123213,  ":", paymentDetail);
-    
     const { MerchantID, Amt, TradeNo, MerchantOrderNo, PaymentType, PayTime, EscrowBank } = Result;
     try {
       Payments.create({
@@ -139,8 +127,8 @@ class CheckoutModel {
         message: Message,
         bank: EscrowBank
       })
-    } catch (error) {
-      throw new Error('發生未知錯誤');
+    } catch (error: any) {
+      throw error;
     }
   }
   // 查詢訂單狀態
@@ -151,29 +139,29 @@ class CheckoutModel {
         where: {
           id: orderID
         },
-        raw: true
+        raw: true,
+        transaction: t,
       })
       return result!.status;
-    } catch (error) {
-      throw new Error('發生未知錯誤');
+    } catch (error: any) {
+      throw error;
     }
   }
   // 查詢結帳後的訂單詳細資訊
   private async queryOrderDetail(orderID: string, t: Transaction): Promise<OrderDetail> {
     try {
       const result = await sequelize.query(
-        'CALL SP_GetOrder(:runType, :userID, :orderID)',
+        'CALL SP_GetPaidOrderDetail(:orderID)',
         {
           replacements: { 
-            runType: 'Q',
-            userID: '',
             orderID: orderID
           },
-        }
+          transaction: t,
+        },
       );
-      return result[0] as unknown as OrderDetail;
-    } catch (error) {
-      throw new Error('發生未知錯誤');
+      return result[0] as unknown as OrderDetail
+    } catch (error: any) {
+      throw error;
     }
   }
   // 改變訂單狀態 pending -> paying 或 paying -> paid
@@ -185,11 +173,11 @@ class CheckoutModel {
           where: {
             id: orderID
           },
-          transaction: t
+          transaction: t,
         }
       )
-    } catch (error) {
-      throw Error('伺服器發生錯誤');
+    } catch (error: any) {
+      throw error;
     }
   }
   // 扣除商品庫存數量
@@ -202,8 +190,8 @@ class CheckoutModel {
         by: decrementQuantity,
         transaction: t
       });
-    } catch (error) {
-      throw new Error('發生未知錯誤');
+    } catch (error: any) {
+      throw error;
     }
   }
   // 扣除購物車庫存數量
@@ -229,8 +217,8 @@ class CheckoutModel {
         },
         transaction: t
       });
-    } catch (error) {
-      throw new Error('發生未知錯誤');
+    } catch (error: any) {
+      throw error;
     }
   }
 }

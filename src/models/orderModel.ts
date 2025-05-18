@@ -16,14 +16,14 @@ implements OrderType {
   public id!: string;
   public userId!: string;
   public totalPrice!: number;
-  public status!: Status;
+  public status!: string;
   public createdDate!: string;
   public createdTime!: string;
   public address!: string;
 }
 Orders.init({
   id: {
-    type: DataTypes.CHAR(36),
+    type: DataTypes.CHAR(11),
     allowNull: false,
     primaryKey: true
   },

@@ -5,31 +5,27 @@ import { sequelize } from '../config/sequelize.ts';
 import { getToday, getCurrentTime } from '../utils/index.ts';
 import { v4 as uuidv4 } from 'uuid';
 import type { ProductDetail } from '../types/product.ts';
-import type { OrderDetail } from '../types/order.ts';
-import { Transaction, Op, QueryTypes } from 'sequelize';
+import type { AllOrderDetail, OrderDetail } from '../types/order.ts';
+import { Transaction, Op, QueryTypes, fn } from 'sequelize';
 import ApiError from '../models/errorModel.ts';
 class OrderModel {
   // 取得訂單列表
-  async getOrder(userID: string) {
-    
-
-
-
-
-
-
-
-
-    // try {
-    //   return await sequelize.query(
-    //     'CALL SP_GetOrder(:userID)',
-    //     {
-    //       replacements: { userID: userID }
-    //     },
-    //   );
-    // } catch (error) {
-    //   throw new Error('發生未知錯誤');
-    // }
+  async getOrder(userID: string): Promise<AllOrderDetail[]> {
+    try {
+      const result = await sequelize.query(
+        'CALL SP_GetOrder(:runType, :userID, :orderID)',
+        {
+          replacements: { 
+            runType: 'Q',
+            userID: userID ,
+            orderID: ''
+          }
+        },
+      );
+      return result as AllOrderDetail[];
+    } catch (error) {
+      throw new Error('發生未知錯誤');
+    }
   }
   // 取得單筆訂單資訊
   async getOrderSingleDetail(userId: string, orderId: string): Promise<OrderDetail> {
@@ -54,13 +50,13 @@ class OrderModel {
     const t = await sequelize.transaction();
     const todayDate = getToday();
     const currentTime = getCurrentTime();
-    const orderID = uuidv4();
     try {
       const isOrderPendingExist = await this.checkOrderIsPending(userId, t);
       if(isOrderPendingExist) {
         const { id } = isOrderPendingExist;
         this.changeOrderStatus(id, t);
       }
+      const orderID = await this.createOrderNo(t);
       await Orders.create({
         id: orderID,
         userId: userId,
@@ -97,7 +93,56 @@ class OrderModel {
       }
     }
   }
-  // 改變訂單狀態 (Pending改成Cancel)
+  // 取消訂單
+  async cancelOrder(orderId: string): Promise<string> {
+    try {
+      await Orders.update(
+        { status: 'cancel' }
+        , {
+          where: {
+            id: orderId
+          }
+        }
+      )
+      return '取消成功';
+    } catch (error) {
+      throw new ApiError('取消失敗請稍後再試', 500);
+    }
+  }
+  // 生成訂單編號
+  private async createOrderNo(t: Transaction): Promise<string> {
+    try {
+      const res = await Orders.findOne({
+        attributes: [
+          [
+            sequelize.fn(
+              'MAX', 
+              sequelize.fn('SUBSTR', sequelize.col('id'), 4)), 
+              'id'
+          ]
+        ],
+        raw: true,
+        transaction: t,
+        lock: t.LOCK.UPDATE
+      })
+      const maximumLength = 8;
+      const orderID = res?.id ?? '00000000';
+      let orderNo = 0;
+      for(let i = 0; i < orderID.length; i++) {
+        if(orderID[i] !== '0') {
+          orderNo += +orderID.slice(i, orderID.length);
+          break;
+        }
+      }
+      const nextNo = orderNo + 1;
+      const newOrderNo = nextNo.toString().padStart(maximumLength, '0');
+      const orderPrefix = 'ORD';
+      return `${orderPrefix}${newOrderNo}`;
+    } catch (error) {
+      throw new ApiError('生成訂單失敗', 500);
+    }
+  }
+  // 改變訂單狀態 (Pending改成Delete)
   private async changeOrderStatus(orderId: string, t: Transaction): Promise<void> {
     try {
       await Orders.update(
