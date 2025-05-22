@@ -24,7 +24,7 @@ export const OrderItems = sequelize.define('OrderItems', {
     allowNull: false
   }
 }, {
-  tableName: 'OrderItems',
+  tableName: 'orderitems',
   timestamps: false
 }
 )

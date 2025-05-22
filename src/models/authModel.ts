@@ -33,7 +33,7 @@ id: {
     allowNull: false
   }
 }, {
-  tableName: 'UserInfo',
+  tableName: 'userinfo',
   timestamps: false,
   sequelize
 })

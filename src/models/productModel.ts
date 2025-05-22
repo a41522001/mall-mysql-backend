@@ -6,6 +6,7 @@ interface ProductType {
   price: number;
   name: string;
   image?: string;
+  sellUserId: string;
 }
 export class Products 
 extends Model<ProductType>
@@ -15,6 +16,7 @@ implements ProductType {
   public price!: number;
   public name!: string;
   public image?: string;
+  public sellUserId!: string;
 }
 Products.init({
   id: {
@@ -36,9 +38,12 @@ Products.init({
   },
   image: {
     type: DataTypes.STRING(100),
+  },
+  sellUserId: {
+    type: DataTypes.CHAR(36)
   }
 }, {
-  tableName: 'Products',
+  tableName: 'products',
   timestamps: false,
   sequelize
 })

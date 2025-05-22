@@ -6,10 +6,12 @@ const db = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
+  port: +process.env.DB_PORT!,
   waitForConnections: true,
   connectionLimit: 10, // 設置最大連接數，可以根據需要調整
   queueLimit: 0
 })
+
 // 測試連接是否正常
 async function testConnection() {
   try {
@@ -17,6 +19,8 @@ async function testConnection() {
     console.log("已連線到資料庫");
     connection.release(); // 釋放連接回連接池
   } catch (err: any) {
+    console.log(err);
+    
     console.error("資料庫連線錯誤", err.message);
   }
 }

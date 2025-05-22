@@ -28,7 +28,7 @@ Carts.init({
     allowNull: false
   }
 }, {
-  tableName: 'Carts',
+  tableName: 'carts',
   timestamps: false,
   sequelize
 })

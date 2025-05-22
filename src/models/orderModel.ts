@@ -51,7 +51,7 @@ Orders.init({
     type: DataTypes.STRING(45),
   }
 }, {
-  tableName: 'Orders',
+  tableName: 'orders',
   timestamps: false,
   sequelize
 })
