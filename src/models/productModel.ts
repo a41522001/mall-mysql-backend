@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
+import { TINYINT } from "sequelize";
 interface ProductType {
   id: string;
   quantity: number;
@@ -7,6 +8,7 @@ interface ProductType {
   name: string;
   image?: string;
   sellUserId: string;
+  isActive: number;
 }
 export class Products 
 extends Model<ProductType>
@@ -17,6 +19,7 @@ implements ProductType {
   public name!: string;
   public image?: string;
   public sellUserId!: string;
+  public isActive!: number;
 }
 Products.init({
   id: {
@@ -41,6 +44,9 @@ Products.init({
   },
   sellUserId: {
     type: DataTypes.CHAR(36)
+  },
+  isActive: {
+    type: DataTypes.TINYINT
   }
 }, {
   tableName: 'products',

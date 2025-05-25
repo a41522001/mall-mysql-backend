@@ -11,6 +11,7 @@ import checkout from './routes/checkoutRoute.ts';
 import sell from './routes/sell.ts';
 import system from './routes/system.ts';
 import { handleError } from './middleware/handleError.ts';
+
 dotenv.config();
 
 const app = express();

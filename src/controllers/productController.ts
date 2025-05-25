@@ -45,3 +45,13 @@ export const addProductImage = async (req: Request, res: Response) => {
     res.status(500).json(ResponseModel.errorResponse(`${error}`, 500));
   }
 }
+// 更改商品上下架狀態
+export const changeProductIsActive = async (req: Request, res: Response, next: NextFunction) => {
+  const { productId, isActive } = req.body;
+  try {
+    await ProductService.changeProductIsActive(productId, isActive);
+    res.status(200).json(ResponseModel.successResponse('更改狀態成功'));
+  } catch (error) {
+    next(error);
+  }
+}

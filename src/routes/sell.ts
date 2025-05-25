@@ -1,8 +1,14 @@
 import { Router } from "express";
-import { getProduct, addProduct, addProductImage, getSellProduct } from '../controllers/productController.ts';
+import { getProduct, addProduct, addProductImage, getSellProduct, changeProductIsActive } from '../controllers/productController.ts';
 import { upload } from '../middleware/uploadFile.ts';
+import { validateRequest } from "../middleware/validateRequest.ts";
+import { getSellerProduct } from '../utils/validate/productValidate.ts';
+import { getDateItem, getSumData } from "../controllers/sellController.ts";
 const router = Router();
 router.post('/addProduct', addProduct);
 router.post('/addProductImage', upload.single('file'), addProductImage);
-router.get('/getProduct', getSellProduct)
+router.get('/getProduct', validateRequest(getSellerProduct, 'query'), getSellProduct);
+router.post('/changeProductIsActive', changeProductIsActive);
+router.get('/getDateItem', getDateItem);
+router.post('/getSumData', getSumData);
 export default router;

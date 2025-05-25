@@ -65,7 +65,17 @@ export const getCurrentTime = (): string => {
   const minute = String(now.getMinutes()).padStart(2, '0');
   return `${hour}${minute}`;
 }
-
+/**
+ * 將 Date 物件格式化為 'YYYYMMDD' 字串。
+ * @param {Date} date - 要格式化的日期物件。
+ * @returns {string} 'YYYYMMDD' 格式的日期字串。
+ */
+export const formatDateToYYYYMMDD = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = (date.getMonth() + 1).toString().padStart(2, '0');
+  const day = date.getDate().toString().padStart(2, '0');
+  return `${year}${month}${day}`;
+}
 /**
  * 解密藍新 TradeInfo
  * @param encryptedHex - 藍新回傳的 TradeInfo（大寫 HEX 字串）
