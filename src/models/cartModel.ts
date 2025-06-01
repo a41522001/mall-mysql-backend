@@ -1,5 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
+import { UserInfo } from "./authModel.ts";
+import { Products } from './productModel.ts';
 interface CartType {
   userId: string;
   productId: string;
@@ -17,11 +19,19 @@ Carts.init({
     type: DataTypes.CHAR(36),
     allowNull: false,
     primaryKey: true,
+    references: {
+      model: UserInfo,
+      key: 'id'
+    }
   },
   productId: {
     type: DataTypes.CHAR(36),
     allowNull: false,
     primaryKey: true,
+    references: {
+      model: Products,
+      key: 'id'
+    }
   },
   quantity: {
     type: DataTypes.INTEGER,

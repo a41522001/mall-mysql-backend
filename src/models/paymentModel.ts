@@ -1,5 +1,7 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
+import { UserInfo } from "./authModel.ts";
+import { Orders } from './orderModel.ts';
 interface PaymentType {
   id: string;
   amount: number;
@@ -56,11 +58,19 @@ Payments.init({
   },
   orderId: {
     type: DataTypes.CHAR(36),
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: Orders,
+      key: 'id'
+    }
   },
   userId: {
     type: DataTypes.CHAR(36),
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: UserInfo,
+      key: 'id'
+    }
   },
   tradeNo: {
     type: DataTypes.STRING(45),

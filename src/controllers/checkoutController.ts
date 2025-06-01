@@ -7,9 +7,9 @@ dotenv.config();
 
 // 結帳
 export const checkout = async (req: Request, res: Response, next: NextFunction) => {
-  const { email, name, orderID, products, total, userID, address } = req.body;
+  const { email, name, orderID, products, total, userID, address, phone, receiverName } = req.body;
   try {
-    const formHtml = await checkoutService.checkout(email, name, orderID, products, total, userID, address);
+    const formHtml = await checkoutService.checkout(email, name, orderID, products, total, userID, address, phone, receiverName);
     res.status(200).json(ResponseModel.successResponse(formHtml));
   } catch (error) {
     next(error);

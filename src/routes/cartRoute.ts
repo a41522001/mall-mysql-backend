@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { addCart, getCart, changeCartQuantity, deleteCart } from '../controllers/cartController.ts';
-import { getCartValidate, addCartValidate, changeCartQuantityValidate, deleteCartValidate } from '../utils/validate/cartValidate.ts';
+import { addCartValidate, changeCartQuantityValidate, deleteCartValidate } from '../utils/validate/cartValidate.ts';
 import { validateRequest } from '../middleware/validateRequest.ts';
 const router = Router();
-router.get('/getCart', validateRequest(getCartValidate, 'query'), getCart);
-router.post('/addCart', validateRequest(addCartValidate, 'body'), addCart);
-router.post('/changeCartQuantity', validateRequest(changeCartQuantityValidate, 'body'), changeCartQuantity);
-router.post('/deleteCart', validateRequest(deleteCartValidate, 'body'), deleteCart);
+router.get('/', getCart);
+router.post('/', validateRequest(addCartValidate, 'body'), addCart);
+router.patch('/', validateRequest(changeCartQuantityValidate, 'body'), changeCartQuantity);
+router.delete('/', validateRequest(deleteCartValidate, 'query'), deleteCart);
 export default router;

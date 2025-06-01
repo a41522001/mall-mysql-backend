@@ -64,7 +64,9 @@ class OrderModel {
         status: 'pending',
         createdDate: todayDate,
         createdTime: currentTime,
-        address: ''
+        address: '',
+        phone: '',
+        receiverName: ''
       }, { transaction: t })
       for(const cart of cartList) {
         const currentProduct = await this.getProductDetail(cart.productID, t);

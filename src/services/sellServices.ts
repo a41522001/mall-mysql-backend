@@ -1,13 +1,12 @@
-import { query } from '../db.ts';
 import ApiError from '../models/errorModel.ts';
-import { Products } from '../models/productModel.ts';
-import { findAll } from '../services/sequelize.ts';
-import { handleUploadFile } from '../utils/uploadFile.ts';
-import { v4 as uuidv4 } from 'uuid';
-import { sequelize } from '../config/sequelize.ts';
-import { formatDateToYYYYMMDD } from '../utils/index.ts';
+import { formatDateToYYYYMMDD, formatYYYYMMDDToSlash } from '../utils/index.ts';
+import { SellSumData } from '../types/interface.ts';
+import { UserInfo, Products, sequelize, Orders, OrderItems } from '../models/sequelizeModel.ts';
+import { Op } from 'sequelize';
+import { viewSellOrderDetail } from '../models/viewModel.ts';
 type Period = 'month' | 'season' | 'halfYear' | 'year';
 class SellService {
+  // 取得chartItem
   getDateItem(period: string) {
     switch(period) {
       case 'month':
@@ -20,8 +19,10 @@ class SellService {
         return this.getYearItem();
     }
   }
+  // 取得chartData
   async getSumData(userId: string, period: Period): Promise<number[]> {
     try {
+      // step1: 先抓取 startDate & endDate 帶入預存拿出{ created: '20250527', sum: 555 } 格式陣列
       const { start, end } = this.getStartAndEndDate(period);
       const result = await sequelize.query('CALL SP_GetSumData(:userId, :startDate, :endDate)', {
         replacements: {
@@ -31,17 +32,207 @@ class SellService {
         }
       })
       const periodMapping = {
+        month: 30,
+        season: 13 * 7,
+        halfYear: 13 * 14,
+        year: 12 * 30
+      }
+      // step2: 生成時間範圍內的 { created: '20250527', sum: 0 } 格式陣列
+      const dateArr = this.setDateSumArray(periodMapping[period]);
+      // step3: 把預存拿回來的資料取代 dateArr 
+      const filterDateArr = this.setDateMap(result as SellSumData[], dateArr);
+      const periodPerMapping = {
         month: 2,
         season: 7,
         halfYear: 14,
         year: 30
       }
-      return this.setDateAndSum(periodMapping[period], result);
+      // step4: 切割&聚合 根據periodPerMapping[period]的值 加總此週期範圍內的sum
+      return this.setDateAndSum(periodPerMapping[period], filterDateArr);
     } catch (error) {
       throw new ApiError('發生未知錯誤', 500);
     }
   }
-  // 切割&聚合從預存拿出來的[{createdData: YYYYMMDD, sum: 200}] (格式)
+  // 取得銷售數量 (本月前五名)
+  async getSellCount(userId: string) {
+    try {
+      const result = await sequelize.query('CALL SP_GetSellCount(:userId)', {
+        replacements: {
+          userId: userId
+        }
+      })
+      return result;
+    } catch (error) {
+      throw new ApiError('發生未知錯誤', 500);
+    }
+  }
+  async getSellOrders(userId: string) {
+    try {
+      const result = await Orders.findAll({
+        attributes: [
+          ['id', 'orderNo'],
+          ['createdDate', 'date'],
+          ['totalPrice', 'total'],
+          'status'
+        ],
+        where: {
+          status: {
+            [Op.in]: ['paid', 'paying', 'deliver', 'delivered', 'cancel', 'finish']
+          }
+        },
+        include: [
+          {
+            model: UserInfo,
+            as: 'userOrder',
+            attributes: [
+              ['name', 'custom']
+            ],
+            required: true
+          },
+          {
+            attributes: [],
+            model: OrderItems,
+            as: 'orderItemOrder',
+            include: [
+              {
+                attributes: [],
+                model: Products,
+                as: 'productOrderItem',
+                required: true,
+                where: {
+                  sellUserId: userId
+                }
+              }
+            ],
+            required: true,
+          }
+        ],
+        group: [        
+          'Orders.id',
+          'userOrder.id',      
+          'userOrder.name'
+        ],
+        order: [
+          ['createdDate', 'desc']
+        ],
+        raw: true
+      })
+      const res = result.map(item => {
+      const { ['userOrder.custom']: customValue, ...restOfItem } = item as any;
+        return {
+          ...restOfItem,
+          custom: customValue
+        };
+      });
+      return res
+    } catch (error) {
+      console.error(error);
+      
+    }
+  }
+  async handleSellDeliver(orderId: string) {
+    try {
+      const result = await Orders.update(
+        { status: 'deliver' },
+        {
+          where: {
+            id: orderId
+          }
+        }
+      )
+    } catch (error) {
+      
+    }
+  }
+  async getSellOrderDetail(orderId: string) {
+    try {
+      const result: any = await viewSellOrderDetail.findAll({
+        attributes: [
+          'image', 'productName', 'price', 'quantity', 'total', 'userName', 'email',
+          'receiverName', 'address', 'phone', 'status', 'orderId', 'createdDate', 'createdTime'
+        ],
+        where: {
+          orderId: orderId
+        },
+        raw: true
+      })
+      const createdTime = result[0].createdTime;
+      const hour = createdTime.slice(0, 2);
+      const minute = createdTime.slice(2, 4);
+      const orderInfo = {
+        total: result[0].total,
+        receiverName: result[0].receiverName,
+        email: result[0].email,
+        address: result[0].address,
+        phone: result[0].phone,
+        status: result[0].status,
+        orderId: result[0].orderId,
+        userName: result[0].userName,
+        createdDate: formatYYYYMMDDToSlash(result[0].createdDate),
+        createdTime: `${hour}:${minute}`,
+        products: []
+      }
+      orderInfo.products = result.map((item: any) => {
+        return {
+          image: item.image,
+          productName: item.productName,
+          price: item.price,
+          quantity: item.quantity,
+        }
+      })
+      return orderInfo;
+    } catch (error) {
+      console.error(error);
+      throw new ApiError('發生未知錯誤', 500);
+    }
+  }
+  async cancelOrder(orderId: string) {
+    try {
+      const result = await Orders.update(
+        { status: 'cancel' },
+        {
+          where: {
+            id: orderId
+          }
+        }
+      )
+    } catch (error) {
+      throw new ApiError('發生未知錯誤', 500);
+    }
+  }
+  // 把資料庫內的{ created: '20250527', sum: 555 } 放進以渲染好的date array temp裡
+  private setDateMap(DBData: SellSumData[], dateData: SellSumData[]) {
+    const dateMap = new Map();
+    for(const item of DBData) {
+      dateMap.set(item.createdDate, item.sum);
+    }
+    const result = dateData.map(item => {
+      if(dateMap.has(item.createdDate)) {
+        return { ...item, sum: +(dateMap.get(item.createdDate)) };
+      }else {
+        return item;
+      }
+    })
+    return result;
+  }
+  // 產生date和sum的陣列
+  private setDateSumArray(period: number) {
+    const arr = [];
+    const startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
+    startDate.setDate(startDate.getDate() - period);
+    const endDate = new Date();
+    endDate.setHours(0, 0, 0, 0);
+    while(startDate <= endDate) {
+      arr.push({
+        createdDate: formatDateToYYYYMMDD(startDate),
+        sum: 0
+      })
+      startDate.setDate(startDate.getDate() + 1);
+    }
+    return arr;
+  }
+  // 切割&聚合時間陣列[{createdData: YYYYMMDD, sum: 200}] (格式)
   private setDateAndSum(per: number, data: any[]): number[] {
     const result = [];
     for(let i = 0; i < data.length; i += per) {
@@ -53,9 +244,8 @@ class SellService {
     }
     return result;
   }
-
   // 取得開始和結束日期
-  private getStartAndEndDate(period: Period): { start: number; end: number } {
+  private getStartAndEndDate(period: Period): { start: string; end: string } {
     const today = new Date();
     const periodMapping = {
       month: 30,
@@ -63,10 +253,10 @@ class SellService {
       halfYear: 13 * 14,
       year: 12 * 30
     }
-    const end = +formatDateToYYYYMMDD(today);
+    const end = formatDateToYYYYMMDD(today);
     const startDateObject = new Date(today);
     startDateObject.setDate(startDateObject.getDate() - periodMapping[period]);
-    const start = +formatDateToYYYYMMDD(startDateObject);
+    const start = formatDateToYYYYMMDD(startDateObject);
     return {
       start,
       end

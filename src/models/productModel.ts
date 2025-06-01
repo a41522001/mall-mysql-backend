@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
+import { UserInfo } from "./authModel.ts";
 import { TINYINT } from "sequelize";
 interface ProductType {
   id: string;
@@ -43,7 +44,11 @@ Products.init({
     type: DataTypes.STRING(100),
   },
   sellUserId: {
-    type: DataTypes.CHAR(36)
+    type: DataTypes.CHAR(36),
+    references: {
+      model: UserInfo,
+      key: 'id'
+    }
   },
   isActive: {
     type: DataTypes.TINYINT

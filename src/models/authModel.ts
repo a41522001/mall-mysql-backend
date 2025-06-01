@@ -15,7 +15,7 @@ implements UserInfoType {
   public name!: string;
 }
 UserInfo.init({
-id: {
+  id: {
     type: DataTypes.CHAR(36),
     allowNull: false,
     primaryKey: true

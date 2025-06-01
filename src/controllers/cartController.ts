@@ -1,11 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import ResponseModel from '../models/responseModel.ts';
 import cartService from '../services/cartService.ts';
-
+import ApiError from '../models/errorModel.ts';
+import { getUserId } from '../utils/index.ts';
 // 新增購物車
 export const addCart = async (req: Request, res: Response, next: NextFunction) => {
-  const { productId, userId, quantity } = req.body;
   try {
+    const userId = await getUserId(req);
+    const { productId, quantity } = req.body;
     await cartService.addCart(productId, userId, quantity);
     res.status(200).json(ResponseModel.successResponse(null, '新增成功'));
   } catch (error) {
@@ -14,9 +16,9 @@ export const addCart = async (req: Request, res: Response, next: NextFunction) =
 }
 // 取得購物車
 export const getCart = async (req: Request, res: Response, next: NextFunction) => {
-  const userID = req.query.userID;
   try {
-    const result = await cartService.getCart(userID as string);
+    const userId = await getUserId(req);
+    const result = await cartService.getCart(userId);
     res.status(200).json(ResponseModel.successResponse(result));
   } catch (error) {
     next(error);
@@ -24,9 +26,10 @@ export const getCart = async (req: Request, res: Response, next: NextFunction) =
 }
 // 更改購物車數量
 export const changeCartQuantity = async (req: Request, res: Response, next: NextFunction) => {
-  const { productID, quantity, userID } = req.body;
   try {
-    await cartService.checkStock(productID, quantity, userID);
+    const userId = await getUserId(req);
+    const { productId, quantity } = req.body;
+    await cartService.checkStock(productId, quantity, userId);
     res.status(200).json(ResponseModel.successResponse(null));
   } catch (error) {
     next(error);
@@ -34,10 +37,15 @@ export const changeCartQuantity = async (req: Request, res: Response, next: Next
 }
 // 刪除購物車
 export const deleteCart = async (req: Request, res: Response, next: NextFunction) => {
-  const { productID, userID } = req.body;
   try {
-    await cartService.deleteCart(productID, userID);
-    res.status(200).json(ResponseModel.successResponse(null, '刪除成功'));
+    const userId = await getUserId(req);
+    const { productID } = req.query;
+    if(typeof productID === 'string') {
+      await cartService.deleteCart(productID, userId);
+      res.status(200).json(ResponseModel.successResponse(null, '刪除成功'));
+    }else {
+      throw new ApiError('發生錯誤', 400);
+    }
   } catch (error) {
     next(error);
   }

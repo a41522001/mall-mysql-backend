@@ -49,6 +49,40 @@ export const getUserInfo = async (req: Request) => {
     throw new ApiError('使用者ID不存在', 404);
   }
 }
+// 取得userID
+export const getUserId = async (req: Request) => {
+  const auth = req.headers.authorization;
+  if(!auth) {
+    throw new ApiError('未提供Token', 401);
+  }
+  const [ header, token ] = auth.split(' ');
+  if(header !== 'Bearer') {
+    throw new ApiError('錯誤Token', 400);
+  }
+  let id = '';
+  try {
+    const data = jwt.verify(token, process.env.SECRET_KEY!) as decodedToken;
+    if(data) {
+      id = data._id;
+    }else {
+      throw new ApiError('錯誤Token', 400);
+    }
+  } catch (error) {
+    throw new ApiError('Token驗證失效或過期', 401);
+  }
+  const result = await UserInfo.findOne({
+    where: {
+      id: id
+    },
+    attributes: ['id', 'email', 'name'],
+    raw: true
+  })
+  if(result) {
+    return id;
+  }else {
+    throw new ApiError('使用者ID不存在', 404);
+  }
+}
 // 取得今日日期
 export const getToday = (): string => {
   const now = new Date();
@@ -75,6 +109,15 @@ export const formatDateToYYYYMMDD = (date: Date): string => {
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const day = date.getDate().toString().padStart(2, '0');
   return `${year}${month}${day}`;
+}
+/**
+ * 將YYYYMMDD 字串轉為 YYYY-MM-DD
+ */
+export const formatYYYYMMDDToSlash = (str: string): string => {
+  const header = str.slice(0, 4);
+  const middle = str.slice(4, 6);
+  const footer = str.slice(6, 8);
+  return `${header}-${middle}-${footer}`;
 }
 /**
  * 解密藍新 TradeInfo

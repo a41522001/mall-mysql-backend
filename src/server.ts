@@ -11,7 +11,6 @@ import checkout from './routes/checkoutRoute.ts';
 import sell from './routes/sell.ts';
 import system from './routes/system.ts';
 import { handleError } from './middleware/handleError.ts';
-
 dotenv.config();
 
 const app = express();
@@ -24,12 +23,12 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use("/ping", ping);
-app.use("/auth", auth);
-app.use("/product", verifyToken, product);
-app.use("/cart", verifyToken, cart);
+app.use("/api/auth", auth);
+app.use("/api/product", verifyToken, product);
+app.use("/api/cart", verifyToken, cart);
 app.use("/order", verifyToken, order);
-app.use("/checkout", verifyToken, checkout);
-app.use("/sell", verifyToken, sell);
+app.use("/api/checkout", verifyToken, checkout);
+app.use("/api/sell", verifyToken, sell);
 app.use("/system", verifyToken, system);
 app.use(handleError);
 

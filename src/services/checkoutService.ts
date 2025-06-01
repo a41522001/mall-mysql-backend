@@ -15,13 +15,12 @@ import { Payments } from '../models/paymentModel.ts';
 import ApiError from '../models/errorModel.ts';
 class CheckoutModel {
   // 結帳
-  async checkout (email: string, name: string, orderID: string, products: CheckoutProduct[], total: number, userID: string, address: string): Promise<string> {
+  async checkout (email: string, name: string, orderID: string, products: CheckoutProduct[], 
+    total: number, userID: string, address: string, phone: string, receiverName: string): Promise<string> {
+
     const t = await sequelize.transaction();
     try {
-      await Promise.all([
-        this.addOrderAddress(orderID, address, t),
-        this.changeOrderStatus(orderID, t, 'paying')
-      ]);
+      await this.updateOrderInfo(orderID, 'paying', address, phone, receiverName, t);
       t.commit();
     } catch (error: any) {
       t.rollback();
@@ -95,10 +94,15 @@ class CheckoutModel {
       throw error;
     }
   }
-  // 新增訂單地址
-  private async addOrderAddress(orderID:string, address: string, t: Transaction) {
+  // 更新訂單資訊(更改狀態 新增地址, 電話, 收件人)
+  private async updateOrderInfo(orderID:string, status: string, address: string, phone: string, receiverName: string, t: Transaction) {
     try {
-      await Orders.update({ address: address }, {
+      await Orders.update({ 
+        address: address,
+        status: status,
+        phone: phone,
+        receiverName: receiverName
+      }, {
           where: {
             id: orderID,
           },

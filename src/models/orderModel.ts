@@ -1,5 +1,6 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from '../config/sequelize.ts';
+import { UserInfo } from "./authModel.ts";
 import type { Status } from '../types/order.ts';
 interface OrderType {
   id: string;
@@ -9,6 +10,8 @@ interface OrderType {
   createdDate: string;
   createdTime: string;
   address: string;
+  phone: string;
+  receiverName: string;
 }
 export class Orders
 extends Model<OrderType>
@@ -20,6 +23,8 @@ implements OrderType {
   public createdDate!: string;
   public createdTime!: string;
   public address!: string;
+  public phone!: string;
+  public receiverName!: string;
 }
 Orders.init({
   id: {
@@ -29,7 +34,11 @@ Orders.init({
   },
   userId: {
     type: DataTypes.CHAR(36),
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: UserInfo,
+      key: 'id'
+    }
   },
   totalPrice: {
     type: DataTypes.INTEGER,
@@ -49,6 +58,15 @@ Orders.init({
   },
   address: {
     type: DataTypes.STRING(45),
+    allowNull: true
+  },
+  phone: {
+    type: DataTypes.STRING(20),
+    allowNull: true
+  },
+  receiverName: {
+    type: DataTypes.STRING(45),
+    allowNull: true
   }
 }, {
   tableName: 'orders',
