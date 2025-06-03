@@ -12,7 +12,7 @@ export const s3 = new S3Client({
 export const handleUploadFile = async (file: any) => {
   try {
     const fileBuffer = await sharp(file.buffer)
-    .resize({ width: 768 })           // 可選擇是否要壓縮尺寸
+    .resize(768, 576, { fit: 'cover' })  // 壓縮尺寸
     .jpeg({ quality: 80 })             // 壓縮品質
     .toBuffer();
     const fileName = `${Date.now()}-${Buffer.from(file.originalname,'binary').toString()}`;
@@ -24,7 +24,7 @@ export const handleUploadFile = async (file: any) => {
       CacheControl: 'public, max-age=31536000'
     };
     await s3.send(new PutObjectCommand(uploadParams));
-    const url = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    const url = `${process.env.AWS_CLOUD_FRONT_URL}${fileName}`;
     return url;
   } catch (error) {
     throw new Error('上傳失敗');
