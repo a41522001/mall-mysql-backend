@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from '../config/sequelize.ts';
-import { Products } from './productModel.ts';
-import { Orders } from './orderModel.ts';
+import { sequelize } from '../config/sequelize.js';
+import { Products } from './productModel.js';
+import { Orders } from './orderModel.js';
 export const OrderItems = sequelize.define('OrderItems', {
   id: {
     type: DataTypes.CHAR(36),

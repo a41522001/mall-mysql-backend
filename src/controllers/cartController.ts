@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import ResponseModel from '../models/responseModel.ts';
-import cartService from '../services/cartService.ts';
-import ApiError from '../models/errorModel.ts';
-import { getUserId } from '../utils/index.ts';
+import ResponseModel from '../models/responseModel.js';
+import cartService from '../services/cartService.js';
+import ApiError from '../models/errorModel.js';
+import { getUserId } from '../utils/index.js';
 // 新增購物車
 export const addCart = async (req: Request, res: Response, next: NextFunction) => {
   try {

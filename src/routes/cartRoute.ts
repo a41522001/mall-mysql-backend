@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { addCart, getCart, changeCartQuantity, deleteCart } from '../controllers/cartController.ts';
-import { addCartValidate, changeCartQuantityValidate, deleteCartValidate } from '../utils/validate/cartValidate.ts';
-import { validateRequest } from '../middleware/validateRequest.ts';
+import { addCart, getCart, changeCartQuantity, deleteCart } from '../controllers/cartController.js';
+import { addCartValidate, changeCartQuantityValidate, deleteCartValidate } from '../utils/validate/cartValidate.js';
+import { validateRequest } from '../middleware/validateRequest.js';
 const router = Router();
 router.get('/', getCart);
 router.post('/', validateRequest(addCartValidate, 'body'), addCart);

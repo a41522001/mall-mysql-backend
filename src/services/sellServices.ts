@@ -1,9 +1,9 @@
-import ApiError from '../models/errorModel.ts';
-import { formatDateToYYYYMMDD, formatYYYYMMDDToSlash } from '../utils/index.ts';
-import { SellSumData } from '../types/interface.ts';
-import { UserInfo, Products, sequelize, Orders, OrderItems } from '../models/sequelizeModel.ts';
+import ApiError from '../models/errorModel.js';
+import { formatDateToYYYYMMDD, formatYYYYMMDDToSlash } from '../utils/index.js';
+import { SellSumData } from '../types/interface.js';
+import { UserInfo, Products, sequelize, Orders, OrderItems } from '../models/sequelizeModel.js';
 import { Op } from 'sequelize';
-import { viewSellOrderDetail } from '../models/viewModel.ts';
+import { viewSellOrderDetail } from '../models/viewModel.js';
 type Period = 'month' | 'season' | 'halfYear' | 'year';
 class SellService {
   // 取得chartItem

@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from "express"
-import ResponseModel from "../models/responseModel.ts";
-import authService from '../services/authService.ts';
+import ResponseModel from "../models/responseModel.js";
+import authService from '../services/authService.js';
 import dotenv from "dotenv";
-import { decodedToken } from "../types/auth.ts";
+import { decodedToken } from "../types/auth.js";
 dotenv.config();
 export const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const reqPath = req.path;

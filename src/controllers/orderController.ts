@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
-import ResponseModel from '../models/responseModel.ts';
-import OrderService from '../services/orderService.ts';
-import ApiError from '../models/errorModel.ts';
+import ResponseModel from '../models/responseModel.js';
+import OrderService from '../services/orderService.js';
+import ApiError from '../models/errorModel.js';
 // 取得所有訂單資訊
 export const getOrder = async (req: Request, res: Response, next: NextFunction) => {
   const userId = req.params?.userId;

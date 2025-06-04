@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from '../config/sequelize.ts';
-import { UserInfo } from "./authModel.ts";
-import { Orders } from './orderModel.ts';
+import { sequelize } from '../config/sequelize.js';
+import { UserInfo } from "./authModel.js";
+import { Orders } from './orderModel.js';
 interface PaymentType {
   id: string;
   amount: number;

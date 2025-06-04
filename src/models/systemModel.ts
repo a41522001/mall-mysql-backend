@@ -1,5 +1,5 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from '../config/sequelize.ts';
+import { sequelize } from '../config/sequelize.js';
 interface SystemType {
   sysNo: string;
   prop: string;

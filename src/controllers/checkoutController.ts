@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import ResponseModel from '../models/responseModel.ts';
-import checkoutService from '../services/checkoutService.ts';
+import ResponseModel from '../models/responseModel.js';
+import checkoutService from '../services/checkoutService.js';
 import dotenv from 'dotenv';
-import ApiError from '../models/errorModel.ts';
+import ApiError from '../models/errorModel.js';
 dotenv.config();
 
 // 結帳

@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
-import ResponseModel from '../models/responseModel.ts';
-// import ProductModel from '../models/productModel.ts'
-import ProductService from '../services/productService.ts';
-import ApiError from '../models/errorModel.ts';
+import ResponseModel from '../models/responseModel.js';
+// import ProductModel from '../models/productModel.js'
+import ProductService from '../services/productService.js';
+import ApiError from '../models/errorModel.js';
 // 取得商品資訊
 export const getProduct = async (req: Request, res: Response) => {
   const result = await ProductService.getProductList();

@@ -1,10 +1,10 @@
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { Request } from "express"
-import { decodedToken } from "../types/auth.ts";
-import type { NewebPayTradeInfo } from '../types/payment.ts';
-import ApiError from '../models/errorModel.ts';
-import { UserInfo } from '../models/authModel.ts';
+import { decodedToken } from "../types/auth.js";
+import type { NewebPayTradeInfo } from '../types/payment.js';
+import ApiError from '../models/errorModel.js';
+import { UserInfo } from '../models/authModel.js';
 dotenv.config();
 import crypto from 'crypto';
 // 創建TOKEN

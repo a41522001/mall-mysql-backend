@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from '../config/sequelize.ts';
-import { UserInfo } from "./authModel.ts";
-import { Products } from './productModel.ts';
+import { sequelize } from '../config/sequelize.js';
+import { UserInfo } from "./authModel.js";
+import { Products } from './productModel.js';
 interface CartType {
   userId: string;
   productId: string;

@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
-import ResponseModel from '../models/responseModel.ts';
-import SystemSettingModel from '../services/systemService.ts';
+import ResponseModel from '../models/responseModel.js';
+import SystemSettingModel from '../services/systemService.js';
 // 取得商品資訊
 export const getSystem = async (req: Request, res: Response, next: NextFunction) => {
   const sysNo = req.query.sysNo;

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import SellService from '../services/sellServices.ts';
-import ResponseModel from "../models/responseModel.ts";
-import { getUserId } from '../utils/index.ts';
+import SellService from '../services/sellServices.js';
+import ResponseModel from "../models/responseModel.js";
+import { getUserId } from '../utils/index.js';
 export const getDateItem = async (req: Request, res: Response, next: NextFunction) => {
   const period = req.query.period as string;
   try {

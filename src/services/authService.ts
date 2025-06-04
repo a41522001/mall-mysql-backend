@@ -1,10 +1,10 @@
 import bcrypt from 'bcrypt';
-import { query } from '../db.ts';
-import { createToken } from '../utils/index.ts';
-import { sequelize } from '../config/sequelize.ts';
-import type { ComparePad } from '../types/auth.ts';
-import { UserInfo } from '../models/authModel.ts';
-import ApiError from '../models/errorModel.ts';
+import { query } from '../db.js';
+import { createToken } from '../utils/index.js';
+import { sequelize } from '../config/sequelize.js';
+import type { ComparePad } from '../types/auth.js';
+import { UserInfo } from '../models/authModel.js';
+import ApiError from '../models/errorModel.js';
 import { v4 as uuidv4 } from 'uuid';
 class AuthModel {
   // 註冊

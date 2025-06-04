@@ -1,6 +1,6 @@
-import { SystemSetting } from '../models/systemModel.ts';
-import { sequelize } from '../config/sequelize.ts';
-import ApiError from '../models/errorModel.ts';
+import { SystemSetting } from '../models/systemModel.js';
+import { sequelize } from '../config/sequelize.js';
+import ApiError from '../models/errorModel.js';
 class SystemSettingModel {
   // 取得系統設定
   async getSystem(sysNo: string) {

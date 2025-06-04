@@ -2,12 +2,13 @@
 {
   "compilerOptions": {
     "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",         // ← 建議改成 bundler
-    "allowImportingTsExtensions": true,    // ← 加這個
+    "module": "NodeNext",
+    // "moduleResolution": "bundler",
+    "moduleResolution": "NodeNext",
+    // "allowImportingTsExtensions": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "noEmit": true,    
+    // "noEmit": true,    
     "strict": true,
     "esModuleInterop": true
   },

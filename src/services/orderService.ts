@@ -1,13 +1,13 @@
-import { Products } from '../models/productModel.ts';
-import { Orders } from '../models/orderModel.ts';
-import { OrderItems } from '../models/orderItemsModel.ts';
-import { sequelize } from '../config/sequelize.ts';
-import { getToday, getCurrentTime } from '../utils/index.ts';
+import { Products } from '../models/productModel.js';
+import { Orders } from '../models/orderModel.js';
+import { OrderItems } from '../models/orderItemsModel.js';
+import { sequelize } from '../config/sequelize.js';
+import { getToday, getCurrentTime } from '../utils/index.js';
 import { v4 as uuidv4 } from 'uuid';
-import type { ProductDetail } from '../types/product.ts';
-import type { AllOrderDetail, OrderDetail } from '../types/order.ts';
+import type { ProductDetail } from '../types/product.js';
+import type { AllOrderDetail, OrderDetail } from '../types/order.js';
 import { Transaction, Op, QueryTypes, fn } from 'sequelize';
-import ApiError from '../models/errorModel.ts';
+import ApiError from '../models/errorModel.js';
 class OrderModel {
   // 取得訂單列表
   async getOrder(userID: string): Promise<AllOrderDetail[]> {

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import ResponseModel from "../models/responseModel.ts";
+import ResponseModel from "../models/responseModel.js";
 interface customError extends Error {
   statusCode: number;
 }

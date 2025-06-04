@@ -1,10 +1,10 @@
-import { query } from '../db.ts';
-import ApiError from '../models/errorModel.ts';
-import { Products } from '../models/productModel.ts';
-import { findAll } from '../services/sequelize.ts';
-import { handleUploadFile } from '../utils/uploadFile.ts';
+import { query } from '../db.js';
+import ApiError from '../models/errorModel.js';
+import { Products } from '../models/productModel.js';
+import { findAll } from '../services/sequelize.js';
+import { handleUploadFile } from '../utils/uploadFile.js';
 import { v4 as uuidv4 } from 'uuid';
-import { sequelize } from '../config/sequelize.ts';
+import { sequelize } from '../config/sequelize.js';
 class ProductService {
   // 取得商品列表
   async getProductList() {

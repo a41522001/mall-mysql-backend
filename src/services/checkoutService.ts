@@ -1,18 +1,18 @@
-import { Products } from '../models/productModel.ts';
-import { Orders } from '../models/orderModel.ts';
-import { Carts } from '../models/cartModel.ts';
-import { OrderItems } from '../models/orderItemsModel.ts';
-import { sequelize } from '../config/sequelize.ts';
-import { renderHTMLForm, decryptTradeInfo } from '../utils/index.ts';
+import { Products } from '../models/productModel.js';
+import { Orders } from '../models/orderModel.js';
+import { Carts } from '../models/cartModel.js';
+import { OrderItems } from '../models/orderItemsModel.js';
+import { sequelize } from '../config/sequelize.js';
+import { renderHTMLForm, decryptTradeInfo } from '../utils/index.js';
 import { v4 as uuidv4 } from 'uuid';
-import type { ProductDetail } from '../types/product.ts';
+import type { ProductDetail } from '../types/product.js';
 import { Transaction, Op, where } from 'sequelize';
-import { encryptAES, createTradeSha } from '../utils/encrypt.ts';
-import type { CheckoutProduct } from '../types/product.ts';
-import type { OrderDetail } from '../types/order.ts';
-import type { NewebPayTradeInfo } from '../types/payment.ts';
-import { Payments } from '../models/paymentModel.ts';
-import ApiError from '../models/errorModel.ts';
+import { encryptAES, createTradeSha } from '../utils/encrypt.js';
+import type { CheckoutProduct } from '../types/product.js';
+import type { OrderDetail } from '../types/order.js';
+import type { NewebPayTradeInfo } from '../types/payment.js';
+import { Payments } from '../models/paymentModel.js';
+import ApiError from '../models/errorModel.js';
 class CheckoutModel {
   // 結帳
   async checkout (email: string, name: string, orderID: string, products: CheckoutProduct[], 

@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import authService from '../services/authService.ts';
-import ResponseModel from "../models/responseModel.ts";
-import { getUserInfo } from '../utils/index.ts';
+import authService from '../services/authService.js';
+import ResponseModel from "../models/responseModel.js";
+import { getUserInfo } from '../utils/index.js';
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;

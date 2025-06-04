@@ -1,16 +1,16 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import { verifyToken } from './middleware/verifyToken.ts';
-import ping from './routes/pingRoute.ts';
-import auth from './routes/authRoute.ts';
-import product from './routes/productRoute.ts';
-import cart from './routes/cartRoute.ts';
-import order from './routes/orderRoute.ts';
-import checkout from './routes/checkoutRoute.ts';
-import sell from './routes/sell.ts';
-import system from './routes/system.ts';
-import { handleError } from './middleware/handleError.ts';
+import { verifyToken } from './middleware/verifyToken.js';
+import ping from './routes/pingRoute.js';
+import auth from './routes/authRoute.js';
+import product from './routes/productRoute.js';
+import cart from './routes/cartRoute.js';
+import order from './routes/orderRoute.js';
+import checkout from './routes/checkoutRoute.js';
+import sell from './routes/sell.js';
+import system from './routes/system.js';
+import { handleError } from './middleware/handleError.js';
 dotenv.config();
 
 const app = express();

@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express"
 import Joi from 'joi';
-import ApiError from "../models/errorModel.ts";
+import ApiError from "../models/errorModel.js";
 type RequestProperty = 'body' | 'query' | 'params'; 
 export const validateRequest = (schema: Joi.Schema, property: RequestProperty = 'body') => {
   return async (req: Request, res: Response, next: NextFunction) => {

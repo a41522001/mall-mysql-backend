@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { getProduct, addProduct, addProductImage, getSellProduct, changeProductIsActive } from '../controllers/productController.ts';
-import { upload } from '../middleware/uploadFile.ts';
-import { validateRequest } from "../middleware/validateRequest.ts";
-import { getSellerProduct } from '../utils/validate/productValidate.ts';
-import { getDateItem, getSellCount, getSellOrderDetail, getSellOrders, getSumData, sellDeliver, cancelOrder } from "../controllers/sellController.ts";
+import { getProduct, addProduct, addProductImage, getSellProduct, changeProductIsActive } from '../controllers/productController.js';
+import { upload } from '../middleware/uploadFile.js';
+import { validateRequest } from "../middleware/validateRequest.js";
+import { getSellerProduct } from '../utils/validate/productValidate.js';
+import { getDateItem, getSellCount, getSellOrderDetail, getSellOrders, getSumData, sellDeliver, cancelOrder } from "../controllers/sellController.js";
 const router = Router();
 router.get('/product', validateRequest(getSellerProduct, 'query'), getSellProduct);
 router.post('/addProduct', addProduct);

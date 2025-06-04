@@ -1,7 +1,7 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from '../config/sequelize.ts';
-import { UserInfo } from "./authModel.ts";
-import type { Status } from '../types/order.ts';
+import { sequelize } from '../config/sequelize.js';
+import { UserInfo } from "./authModel.js";
+import type { Status } from '../types/order.js';
 interface OrderType {
   id: string;
   userId: string;

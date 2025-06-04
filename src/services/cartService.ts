@@ -1,7 +1,7 @@
-import { Products } from '../models/productModel.ts';
-import { sequelize } from '../config/sequelize.ts';
-import { Carts } from '../models/cartModel.ts';
-import ApiError from '../models/errorModel.ts';
+import { Products } from '../models/productModel.js';
+import { sequelize } from '../config/sequelize.js';
+import { Carts } from '../models/cartModel.js';
+import ApiError from '../models/errorModel.js';
 class CartModel {
   // 新增購物車
   async addCart(productId: string, userID: string, quantity: number) {

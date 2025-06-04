@@ -1,11 +1,11 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from '../config/sequelize.ts';
-import { UserInfo } from "./authModel.ts";
-import { Products } from './productModel.ts';
-import { Carts } from "./cartModel.ts";
-import { Orders } from './orderModel.ts';
-import { OrderItems } from "./orderItemsModel.ts";
-import { Payments } from "./paymentModel.ts";
+import { sequelize } from '../config/sequelize.js';
+import { UserInfo } from "./authModel.js";
+import { Products } from './productModel.js';
+import { Carts } from "./cartModel.js";
+import { Orders } from './orderModel.js';
+import { OrderItems } from "./orderItemsModel.js";
+import { Payments } from "./paymentModel.js";
 
 
 // 一對一

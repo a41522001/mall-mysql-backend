@@ -1,6 +1,6 @@
 import { DataTypes, Model } from "sequelize";
-import { sequelize } from '../config/sequelize.ts';
-import { UserInfo } from "./authModel.ts";
+import { sequelize } from '../config/sequelize.js';
+import { UserInfo } from "./authModel.js";
 import { TINYINT } from "sequelize";
 interface ProductType {
   id: string;
