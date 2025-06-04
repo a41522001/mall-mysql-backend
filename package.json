@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon --exec node --loader ts-node/esm src/server.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "debug": "npx tsc --noEmit"
+    "debug": "npx tsc --noEmit",
+    "build": "tsc"
   },
   "author": "",
   "type": "module",
