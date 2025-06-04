@@ -26,7 +26,7 @@ SystemSetting.init({
     allowNull: false
   }
 }, {
-  tableName: 'systemSetting',
+  tableName: 'systemsetting',
   timestamps: false,
   sequelize
 })
