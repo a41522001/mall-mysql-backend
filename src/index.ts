@@ -26,10 +26,10 @@ app.use("/ping", ping);
 app.use("/api/auth", auth);
 app.use("/api/product", verifyToken, product);
 app.use("/api/cart", verifyToken, cart);
-app.use("/order", verifyToken, order);
+app.use("/api/order", verifyToken, order);
 app.use("/api/checkout", verifyToken, checkout);
 app.use("/api/sell", verifyToken, sell);
-app.use("/system", verifyToken, system);
+app.use("/api/system", verifyToken, system);
 app.use(handleError);
 
 app.listen(port, () => {

@@ -24,6 +24,7 @@ class SellService {
     try {
       // step1: 先抓取 startDate & endDate 帶入預存拿出{ created: '20250527', sum: 555 } 格式陣列
       const { start, end } = this.getStartAndEndDate(period);
+
       const result = await sequelize.query('CALL SP_GetSumData(:userId, :startDate, :endDate)', {
         replacements: {
           userId: userId,
@@ -220,7 +221,7 @@ class SellService {
     const arr = [];
     const startDate = new Date();
     startDate.setHours(0, 0, 0, 0);
-    startDate.setDate(startDate.getDate() - period);
+    startDate.setDate(startDate.getDate() - period + 1);
     const endDate = new Date();
     endDate.setHours(0, 0, 0, 0);
     while(startDate <= endDate) {
@@ -236,7 +237,7 @@ class SellService {
   private setDateAndSum(per: number, data: any[]): number[] {
     const result = [];
     for(let i = 0; i < data.length; i += per) {
-      const sliceData = data.slice(i, i+per);
+      const sliceData = data.slice(i, i + per);
       const sum = sliceData.reduce((acc, item) => {
         return acc + Number(item.sum);
       }, 0)
@@ -255,7 +256,7 @@ class SellService {
     }
     const end = formatDateToYYYYMMDD(today);
     const startDateObject = new Date(today);
-    startDateObject.setDate(startDateObject.getDate() - periodMapping[period]);
+    startDateObject.setDate(startDateObject.getDate() - periodMapping[period] + 1);
     const start = formatDateToYYYYMMDD(startDateObject);
     return {
       start,
@@ -268,9 +269,9 @@ class SellService {
     const dates = [];
     const today = new Date();
     const startDate = new Date(today);
-    startDate.setDate(today.getDate() - 29);
+    startDate.setDate(today.getDate() - 28);
 
-    for (let i = 0; i < 30; i+=2) {
+    for (let i = 0; i < 30; i += 2) {
       const currentDate = new Date(startDate);
       currentDate.setDate(startDate.getDate() + i);
       const month = currentDate.getMonth() + 1;
