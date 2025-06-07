@@ -33,5 +33,5 @@ app.use("/api/system", verifyToken, system);
 app.use(handleError);
 
 app.listen(port, () => {
-  console.log('on server');
+  console.log('伺服器啟動');
 })

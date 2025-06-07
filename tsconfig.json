@@ -12,5 +12,6 @@
     "strict": true,
     "esModuleInterop": true
   },
-  "include": ["src/**/*/*"]
+  "include": ["src/**/*/*"],
+  "files": ["src/index.ts", "src/db.ts"]
 }
