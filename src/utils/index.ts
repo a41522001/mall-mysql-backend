@@ -23,7 +23,7 @@ export const getUserInfo = async (req: Request) => {
   }
   const [ header, token ] = auth.split(' ');
   if(header !== 'Bearer') {
-    throw new ApiError('錯誤Token', 400);
+    throw new ApiError('錯誤Token', 401);
   }
   let id = '';
   try {
@@ -31,7 +31,7 @@ export const getUserInfo = async (req: Request) => {
     if(data) {
       id = data._id;
     }else {
-      throw new ApiError('錯誤Token', 400);
+      throw new ApiError('錯誤Token', 401);
     }
   } catch (error) {
     throw new ApiError('Token驗證失效或過期', 401);
@@ -57,7 +57,7 @@ export const getUserId = async (req: Request) => {
   }
   const [ header, token ] = auth.split(' ');
   if(header !== 'Bearer') {
-    throw new ApiError('錯誤Token', 400);
+    throw new ApiError('錯誤Token', 401);
   }
   let id = '';
   try {
@@ -65,7 +65,7 @@ export const getUserId = async (req: Request) => {
     if(data) {
       id = data._id;
     }else {
-      throw new ApiError('錯誤Token', 400);
+      throw new ApiError('錯誤Token', 401);
     }
   } catch (error) {
     throw new ApiError('Token驗證失效或過期', 401);

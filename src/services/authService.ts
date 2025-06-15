@@ -1,8 +1,5 @@
 import bcrypt from 'bcrypt';
-import { query } from '../db.js';
 import { createToken } from '../utils/index.js';
-import { sequelize } from '../config/sequelize.js';
-import type { ComparePad } from '../types/auth.js';
 import { UserInfo } from '../models/authModel.js';
 import ApiError from '../models/errorModel.js';
 import { v4 as uuidv4 } from 'uuid';
@@ -53,8 +50,17 @@ class AuthModel {
   }
   // 確認Token資料
   async checkToken(id: string, email: string): Promise<number> {
-    const result = await query('CALL SP_CheckToken(?, ?)', [id, email]);
-    const isExist = result[0][0].isAccountExist;
+    const result = await UserInfo.findOne({
+      where: {
+        id,
+        email
+      },
+      raw: true
+    })
+    let isExist = 0;
+    if(result) {
+      return 1
+    }
     return isExist;
   }
 }

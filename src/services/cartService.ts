@@ -1,19 +1,33 @@
-import { Products } from '../models/productModel.js';
-import { sequelize } from '../config/sequelize.js';
-import { Carts } from '../models/cartModel.js';
 import ApiError from '../models/errorModel.js';
+import { Products, Carts } from '../models/sequelizeModel.js';
+import type { CartProductType } from '../types/cart.js';
 class CartModel {
   // 新增購物車
   async addCart(productId: string, userID: string, quantity: number) {
     try {
-      await sequelize.query('CALL SP_Cart(:queryString, :productID, :userID, :quantity)', {
-        replacements: {
-          queryString: 'AddCart',
-          productID: productId,
-          userID: userID,
-          quantity: quantity
+      const [createdItem, created] = await Carts.findOrCreate({
+        where: {
+          productId,
+          userId: userID
+        },
+        defaults: {
+          quantity: quantity,
+          productId,
+          userId: userID
         }
       })
+
+      if(!created) {
+        await Carts.increment({ 
+          quantity: quantity 
+        }, 
+        {
+          where: {
+            productId,
+            userId: userID
+          }
+        })
+      }
     } catch (error) {
       throw new ApiError('伺服器發生錯誤，請重新再試', 500);
     }
@@ -21,15 +35,30 @@ class CartModel {
   // 取得購物車
   async getCart(userID: string) {
     try {
-      const result = await sequelize.query('CALL SP_Cart(:queryString, :productID, :userID, :quantity)', {
-        replacements: {
-          queryString: 'GetCart',
-          productID: '',
-          userID: userID,
-          quantity: 0
+      const result = await Carts.findAll({
+        where: {
+          userId: userID
+        },
+        attributes: ['quantity'],
+        include: {
+          model: Products,
+          as: 'cartProduct',
+          attributes: ['id', 'name', 'price', 'image']
         }
       })
-      return result;
+      const finallyData = result.map((item) => {
+        const plainItem = item.get({ plain: true }) as unknown as CartProductType & { quantity: number };
+        const { quantity, cartProduct } = plainItem
+        const { id, name, price, image } = cartProduct;
+        return {
+          productId: id,
+          quantity,
+          name,
+          price,
+          image
+        }
+      });
+      return finallyData;
     } catch (error) {
       throw new ApiError('伺服器發生錯誤，請重新再試', 500);
     }
