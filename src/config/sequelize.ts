@@ -14,7 +14,7 @@ export const sequelize = new Sequelize(
   }
 );
 // 測試連線
-export async function testConnection() {
+export const testConnection = async () => {
   try {
     await sequelize.authenticate();
     console.log('成功連線到 MySQL 資料庫');
