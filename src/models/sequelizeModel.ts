@@ -8,7 +8,6 @@ import { OrderItems } from "./orderItemsModel.js";
 import { Payments } from "./paymentModel.js";
 
 
-// 一對一
 Products.belongsTo(UserInfo, {
   foreignKey: 'sellUserId',
   as: 'seller'

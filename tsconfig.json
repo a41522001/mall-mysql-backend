@@ -13,5 +13,5 @@
     "esModuleInterop": true
   },
   "include": ["src/**/*/*"],
-  "files": ["src/index.ts", "src/db.ts"]
+  "files": ["src/index.ts"]
 }

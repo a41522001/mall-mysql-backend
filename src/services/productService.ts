@@ -1,4 +1,3 @@
-import { query } from '../db.js';
 import ApiError from '../models/errorModel.js';
 import { Products } from '../models/productModel.js';
 import { findAll } from '../services/sequelize.js';
