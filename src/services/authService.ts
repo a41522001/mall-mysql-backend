@@ -8,11 +8,11 @@ class AuthModel {
   async signup(name: string, email: string, pwd: string) {
     const result = await UserInfo.findOne({
       where: {
-        email: email
+        email: email,
       },
-      raw: true
-    })
-    if(result) {
+      raw: true,
+    });
+    if (result) {
       throw new ApiError('帳號已存在', 400);
     }
     // 密碼加鹽
@@ -22,29 +22,29 @@ class AuthModel {
       id: uuidv4(),
       email: email,
       password: bcryptPwd,
-      name: name
-    })
+      name: name,
+    });
   }
-  private async getPad(email: string): Promise<{password: string, id: string} | null> {
+  private async getPad(email: string): Promise<{ password: string; id: string } | null> {
     return await UserInfo.findOne({
       where: {
-        email: email
+        email: email,
       },
       attributes: ['id', 'password'],
-      raw: true
-    })
+      raw: true,
+    });
   }
   // 登入
   async login(email: string, pwd: string): Promise<string> {
     const result = await this.getPad(email);
-    if(!result) {
+    if (!result) {
       throw new ApiError('帳號密碼錯誤', 400);
     }
     const { id, password } = result;
     const isPasswordExist = await bcrypt.compare(pwd, password);
-    if(isPasswordExist) {
+    if (isPasswordExist) {
       return createToken(id, email);
-    }else {
+    } else {
       throw new ApiError('帳號密碼錯誤', 400);
     }
   }
@@ -53,15 +53,49 @@ class AuthModel {
     const result = await UserInfo.findOne({
       where: {
         id,
-        email
+        email,
       },
-      raw: true
-    })
+      raw: true,
+    });
     let isExist = 0;
-    if(result) {
-      return 1
+    if (result) {
+      return 1;
     }
     return isExist;
+  }
+  // 重設密碼
+  async resetPassword(name: string, email: string, password: string): Promise<{ result: string; code: number }> {
+    console.log(name, email, password);
+    const result = await UserInfo.findOne({
+      where: {
+        name,
+        email,
+      },
+      raw: true,
+    });
+    if (result) {
+      const bcryptPwd = await bcrypt.hash(password, 10);
+      await UserInfo.update(
+        {
+          password: bcryptPwd,
+        },
+        {
+          where: {
+            name,
+            email,
+          },
+        }
+      );
+      return {
+        result: '重設成功',
+        code: 100,
+      };
+    } else {
+      return {
+        result: '使用者名稱或信箱錯誤',
+        code: 400,
+      };
+    }
   }
 }
 export default new AuthModel();

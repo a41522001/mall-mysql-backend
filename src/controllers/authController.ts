@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import authService from '../services/authService.js';
-import ResponseModel from "../models/responseModel.js";
+import ResponseModel from '../models/responseModel.js';
 import { getUserInfo } from '../utils/index.js';
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
@@ -11,7 +11,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
   } catch (error) {
     next(error);
   }
-}
+};
 export const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   try {
@@ -20,7 +20,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
   } catch (error) {
     next(error);
   }
-}
+};
 export const userInfo = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const result = await getUserInfo(req);
@@ -28,4 +28,13 @@ export const userInfo = async (req: Request, res: Response, next: NextFunction) 
   } catch (error) {
     next(error);
   }
-}
+};
+export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { name, email, password } = req.body;
+    const { result, code } = await authService.resetPassword(name, email, password);
+    res.status(200).json(ResponseModel.successResponse(result, '成功', code));
+  } catch (error) {
+    next(error);
+  }
+};
