@@ -3,9 +3,10 @@ import { signup, login, userInfo, resetPassword } from '../controllers/authContr
 import { loginValidate, signupValidate } from '../utils/validate/authValidate.js';
 import { validateRequest } from '../middleware/validateRequest.js';
 import limiter from '../middleware/rateLimit.js';
+import { verifyToken } from '../middleware/verifyToken.js';
 const router = Router();
 router.post('/signup', validateRequest(signupValidate, 'body'), signup);
 router.post('/login', limiter, validateRequest(loginValidate, 'body'), login);
-router.get('/userInfo', userInfo);
+router.get('/userInfo', verifyToken, userInfo);
 router.post('/resetPassword', resetPassword);
 export default router;

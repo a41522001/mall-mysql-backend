@@ -1,111 +1,106 @@
-import { DataTypes } from "sequelize";
 import { sequelize } from '../config/sequelize.js';
-import { UserInfo } from "./authModel.js";
+import { UserInfo } from './authModel.js';
 import { Products } from './productModel.js';
-import { Carts } from "./cartModel.js";
+import { Carts } from './cartModel.js';
 import { Orders } from './orderModel.js';
-import { OrderItems } from "./orderItemsModel.js";
-import { Payments } from "./paymentModel.js";
-
+import { OrderItems } from './orderItemsModel.js';
+import { Payments } from './paymentModel.js';
+import { Token } from './tokenModel.js';
 
 Products.belongsTo(UserInfo, {
   foreignKey: 'sellUserId',
-  as: 'seller'
-})
+  as: 'seller',
+});
 Carts.belongsTo(UserInfo, {
   foreignKey: 'userId',
-  as: 'cartUser'
-})
+  as: 'cartUser',
+});
 Carts.belongsTo(Products, {
   foreignKey: 'productId',
-  as: 'cartProduct'
-})
+  as: 'cartProduct',
+});
 Orders.belongsTo(UserInfo, {
   foreignKey: 'userId',
-  as: 'userOrder'
-})
+  as: 'userOrder',
+});
 OrderItems.belongsTo(Products, {
   foreignKey: 'productId',
-  as: 'productOrderItem'
-})
+  as: 'productOrderItem',
+});
 OrderItems.belongsTo(Orders, {
   foreignKey: 'orderId',
-  as: 'orderOrderItem'
-})
+  as: 'orderOrderItem',
+});
 Payments.belongsTo(UserInfo, {
   foreignKey: 'userId',
-  as: 'payer'
-})
+  as: 'payer',
+});
 Payments.belongsTo(Orders, {
   foreignKey: 'orderId',
-  as: 'paymentOrder'
-})
+  as: 'paymentOrder',
+});
+Token.belongsTo(UserInfo, {
+  foreignKey: 'userId',
+  as: 'tokenUser',
+});
 
 // 一對多
 UserInfo.hasMany(Products, {
   foreignKey: 'sellUserId',
-  as: 'sellerProduct'
-})
+  as: 'sellerProduct',
+});
 UserInfo.hasMany(Carts, {
   foreignKey: 'userId',
-  as: 'cartOfUser'
-})
+  as: 'cartOfUser',
+});
 UserInfo.hasMany(Orders, {
   foreignKey: 'userId',
-  as: 'userOrder'
-})
+  as: 'userOrder',
+});
 UserInfo.hasMany(Payments, {
   foreignKey: 'userId',
-  as: 'userPayment'
-})
+  as: 'userPayment',
+});
 Products.hasMany(Carts, {
   foreignKey: 'productId',
-  as: 'cartOfProduct'
-})
+  as: 'cartOfProduct',
+});
 Products.hasMany(OrderItems, {
   foreignKey: 'productId',
-  as: 'orderItemProduct'
-})
+  as: 'orderItemProduct',
+});
 Orders.hasMany(OrderItems, {
   foreignKey: 'orderId',
-  as: 'orderItemOrder'
+  as: 'orderItemOrder',
 });
 Orders.hasMany(Payments, {
   foreignKey: 'orderId',
-  as: 'orderPayment'
-})
+  as: 'orderPayment',
+});
 
 //多對多
 UserInfo.belongsToMany(Products, {
   through: Carts,
   foreignKey: 'userId',
   otherKey: 'productId',
-  as: 'productsInCart' 
+  as: 'productsInCart',
 });
 Products.belongsToMany(UserInfo, {
   through: Carts,
   foreignKey: 'productId',
   otherKey: 'userId',
-  as: 'userInCart'
-})
+  as: 'userInCart',
+});
 Orders.belongsToMany(Products, {
   through: OrderItems,
   foreignKey: 'orderId',
   otherKey: 'productId',
-  as: 'productInOrderItem'
-})
+  as: 'productInOrderItem',
+});
 Products.belongsToMany(Orders, {
   through: OrderItems,
   foreignKey: 'productId',
   otherKey: 'orderId',
-  as: 'orderInOrderItem'
-})
-export {
-  sequelize,
-  UserInfo,
-  Products,
-  Carts,
-  Orders,
-  OrderItems,
-  Payments,
-};
+  as: 'orderInOrderItem',
+});
+export { sequelize, UserInfo, Products, Carts, Orders, OrderItems, Payments, Token };

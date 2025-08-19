@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { Response, NextFunction } from 'express';
 import authService from '../services/authService.js';
 import ResponseModel from '../models/responseModel.js';
-import { getUserInfo } from '../utils/index.js';
+import { getUserId } from '../utils/index.js';
+import { RequestCustom } from '../types/interface.js';
 
-export const signup = async (req: Request, res: Response, next: NextFunction) => {
+export const signup = async (req: RequestCustom, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body;
   try {
     await authService.signup(name, email, password);
@@ -12,24 +13,42 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
     next(error);
   }
 };
-export const login = async (req: Request, res: Response, next: NextFunction) => {
+export const login = async (req: RequestCustom, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   try {
-    const token = await authService.login(email, password);
-    res.status(200).json(ResponseModel.loginResponse('登入成功', token, 100));
+    const { access, refresh } = await authService.login(email, password);
+    console.log(access);
+    console.log(refresh);
+
+    res.cookie('access', access, {
+      maxAge: 15 * 60 * 1000,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      path: '/',
+    });
+    res.cookie('refresh', refresh, {
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+      path: '/',
+    });
+    res.status(200).json(ResponseModel.loginResponse<null>('登入成功', 100, null));
   } catch (error) {
     next(error);
   }
 };
-export const userInfo = async (req: Request, res: Response, next: NextFunction) => {
+export const userInfo = async (req: RequestCustom, res: Response, next: NextFunction) => {
   try {
-    const result = await getUserInfo(req);
+    const userId = await getUserId(req);
+    const result = await authService.getUserInfo(userId);
     res.status(200).json(ResponseModel.successResponse(result));
   } catch (error) {
     next(error);
   }
 };
-export const resetPassword = async (req: Request, res: Response, next: NextFunction) => {
+export const resetPassword = async (req: RequestCustom, res: Response, next: NextFunction) => {
   try {
     const { name, email, password } = req.body;
     const { result, code } = await authService.resetPassword(name, email, password);

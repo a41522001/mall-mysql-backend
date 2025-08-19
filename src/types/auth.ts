@@ -9,6 +9,12 @@ export interface decodedToken {
   iat: number;
   exp: number;
 }
+export interface DecodedToken {
+  sub: string;
+  jti: string;
+  iat: number;
+  exp: number;
+}
 export interface ComparePad {
   id: string;
   password: string;

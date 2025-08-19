@@ -1,11 +1,13 @@
-import jwt from 'jsonwebtoken';
+import jwt, { SignOptions } from 'jsonwebtoken';
 import dotenv from 'dotenv';
 import { Request } from 'express';
 import { decodedToken } from '../types/auth.js';
 import type { NewebPayTradeInfo } from '../types/payment.js';
 import ApiError from '../models/errorModel.js';
 import { UserInfo } from '../models/authModel.js';
-import crypto from 'crypto';
+import crypto, { createHash, randomUUID } from 'crypto';
+import type { StringValue } from 'ms';
+import { RequestCustom } from '../types/interface.js';
 dotenv.config();
 // 創建TOKEN
 export const createToken = (userID: string, email: string) => {
@@ -15,30 +17,11 @@ export const createToken = (userID: string, email: string) => {
   // const token = jwt.sign(tokenObject, process.env.SECRET_KEY as string, { expiresIn: '2000' });
   return token;
 };
-// 取得user資料
-export const getUserInfo = async (req: Request) => {
-  const auth = req.headers.authorization;
-  const [header, token] = auth!.split(' ');
-  const data = jwt.verify(token, process.env.SECRET_KEY!) as decodedToken;
-  const result = await UserInfo.findOne({
-    where: {
-      id: data._id,
-    },
-    attributes: ['id', 'email', 'name'],
-    raw: true,
-  });
-  if (result) {
-    return result;
-  } else {
-    throw new ApiError('使用者ID不存在', 404);
-  }
-};
+
 // 取得userID
-export const getUserId = async (req: Request) => {
-  const auth = req.headers.authorization;
-  const [header, token] = auth!.split(' ');
-  const data = jwt.decode(token) as decodedToken;
-  return data._id;
+export const getUserId = async (req: RequestCustom) => {
+  if (!req.userId) throw new ApiError('請重新登入', 401);
+  return req.userId;
 };
 // 取得今日日期
 export const getToday = (): string => {
@@ -111,4 +94,31 @@ export const renderHTMLForm = (gateway: string, merchantID: string, encryptedTra
       </body>
     </html>
   `;
+};
+/**
+ * 創建Token
+ * @param {string} userId - user.id
+ * @returns {string} token
+ */
+export const createAccessToken = (userId: string): string => {
+  const payload = {
+    // issuer: env.API_URL,
+    sub: userId,
+    jti: createHash('sha256').update(randomUUID()).digest('hex'),
+  };
+
+  const options: SignOptions = {
+    // expiresIn: env.ACCESS_TOKEN_EXPIRE as StringValue,
+    expiresIn: '15m' as StringValue,
+    algorithm: 'HS256',
+  };
+  const token = jwt.sign(payload, process.env.SECRET_KEY!, options);
+  return token;
+};
+// 產生refresh token到期時間
+export const generateRefreshTokenTime = (): Date => {
+  const days = +process.env.REFRESH_TOKEN_EXPIRE!;
+  const expireDate = new Date();
+  expireDate.setDate(expireDate.getDate() + days);
+  return expireDate;
 };

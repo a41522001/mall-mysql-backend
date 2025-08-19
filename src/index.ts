@@ -10,17 +10,22 @@ import checkout from './routes/checkoutRoute.js';
 import sell from './routes/sell.js';
 import system from './routes/system.js';
 import { handleError } from './middleware/handleError.js';
+import cookieParser from 'cookie-parser';
 dotenv.config();
 
 const app = express();
 const port = process.env.PORT;
+
+app.set('trust proxy', 1);
 app.use(
   cors({
     origin: [process.env.FRONT_END_URL!],
     methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
   })
 );
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 

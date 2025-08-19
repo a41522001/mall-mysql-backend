@@ -9,18 +9,18 @@ class ResponseModel<T> {
     this.data = data;
     this.message = message;
     this.time = new Date().toISOString();
-    if(token) {
+    if (token) {
       this.token = token;
     }
   }
-  static successResponse<T>(data: T, message: string = "成功", code: number = 100) {
+  static successResponse<T>(data: T, message: string = '成功', code: number = 100) {
     return new ResponseModel(code, message, data);
   }
   static errorResponse(message: string, code: number, data: null = null) {
     return new ResponseModel(code, message, data);
   }
-  static loginResponse(message: string, token: string, code: number, data: null = null) {
-    return new ResponseModel(code, message, data, token);
+  static loginResponse<T>(message: string, code: number, data: T) {
+    return new ResponseModel(code, message, data);
   }
 }
 export default ResponseModel;

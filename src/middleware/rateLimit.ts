@@ -4,6 +4,7 @@ import ApiError from '../models/errorModel.js';
 const limiter = rateLimit({
   windowMs: 1 * 60 * 1000,
   limit: 5,
+  // keyGenerator: (req: Request): string => req.ip as string,
   statusCode: 429,
   handler: (req: Request, _res: Response, next: NextFunction, opts) => {
     const waitSec = Math.ceil(opts.windowMs / 1000);

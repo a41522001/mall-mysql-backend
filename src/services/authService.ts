@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
-import { createToken } from '../utils/index.js';
+import { createToken, createAccessToken, generateRefreshTokenTime } from '../utils/index.js';
 import { UserInfo } from '../models/authModel.js';
 import ApiError from '../models/errorModel.js';
 import { v4 as uuidv4 } from 'uuid';
+import { Token } from '../models/sequelizeModel.js';
 class AuthModel {
   // 註冊
   async signup(name: string, email: string, pwd: string) {
@@ -34,8 +35,23 @@ class AuthModel {
       raw: true,
     });
   }
+  // 取得user資料
+  async getUserInfo(userId: string) {
+    const result = await UserInfo.findOne({
+      where: {
+        id: userId,
+      },
+      attributes: ['id', 'email', 'name'],
+      raw: true,
+    });
+    if (result) {
+      return result;
+    } else {
+      throw new ApiError('使用者ID不存在', 404);
+    }
+  }
   // 登入
-  async login(email: string, pwd: string): Promise<string> {
+  async login(email: string, pwd: string) {
     const result = await this.getPad(email);
     if (!result) {
       throw new ApiError('帳號密碼錯誤', 400);
@@ -43,7 +59,19 @@ class AuthModel {
     const { id, password } = result;
     const isPasswordExist = await bcrypt.compare(pwd, password);
     if (isPasswordExist) {
-      return createToken(id, email);
+      const accessToken = createAccessToken(id);
+      const refreshToken = uuidv4();
+      const expireTime = generateRefreshTokenTime();
+      await Token.upsert({
+        refreshToken: refreshToken,
+        userId: id,
+        expiredAt: expireTime,
+        createdAt: new Date(),
+      });
+      return {
+        access: accessToken,
+        refresh: refreshToken,
+      };
     } else {
       throw new ApiError('帳號密碼錯誤', 400);
     }
